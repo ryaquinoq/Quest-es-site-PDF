@@ -102,7 +102,7 @@ class QuizParser {
       intro = questionsText.substring(0, firstQuestIndex).trim();
       questionsText = questionsText.substring(firstQuestIndex);
     } else {
-      intro = "Simulado carregado em " + new Date().toLocaleDateString();
+      intro = "MedQuestion carregado em " + new Date().toLocaleDateString();
     }
 
     // Limpa introdução de divisores estéticos
@@ -279,7 +279,7 @@ class QuizParser {
     }
 
     // Título do simulado baseado no primeiro cabeçalho
-    const titleMatch = intro.split('\n')[0] || "Simulado Interativo";
+    const titleMatch = intro.split('\n')[0] || "MedQuestion";
     const title = titleMatch.length > 120 ? titleMatch.substring(0, 117) + "..." : titleMatch;
 
     return {

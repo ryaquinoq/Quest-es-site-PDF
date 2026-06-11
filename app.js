@@ -986,8 +986,8 @@ function generateSelfContainedHtml(quizData) {
     <div class="logo-container">
       <div class="logo-icon">Q</div>
       <div class="logo-text">
-        <h1 id="header-title">Simulado</h1>
-        <p>Simulado Interativo Offline</p>
+        <h1 id="header-title">MedQuestion</h1>
+        <p>MedQuestion Interativo Offline</p>
       </div>
     </div>
   </header>
@@ -1024,7 +1024,7 @@ function generateSelfContainedHtml(quizData) {
       };
       
       function init() {
-        elements.headerTitle.textContent = quiz.metadata.title || "Simulado";
+        elements.headerTitle.textContent = quiz.metadata.title || "MedQuestion";
         render();
       }
       
