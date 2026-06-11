@@ -737,11 +737,6 @@ function initExport() {
     // Sincroniza o editor atual
     saveActiveEditQuestion();
     
-    // Busca estilos compilados
-    const cssStyle = document.querySelector('link[href*="style.css"]') 
-      ? getLocalStylesheetContent() 
-      : "";
-      
     const htmlOutput = generateSelfContainedHtml(state.quizData);
     const blob = new Blob([htmlOutput], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -767,13 +762,12 @@ function renderExport() {
   
   DOM.exportView.style.display = "block";
   DOM.exportPlaceholder.style.display = "none";
+}
+
 function generateSelfContainedHtml(quizData) {
   const jsonDataEscaped = JSON.stringify(quizData)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e');
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
