@@ -453,7 +453,7 @@ function renderActiveQuestion() {
 function renderGabaritoGeral() {
   let html = `
     <div style="margin-bottom: 24px; border-bottom: 1px solid var(--border-muted); padding-bottom: 16px;">
-      <h2 class="question-title" style="font-size: 1.6rem; color: #fff;">📊 Gabarito Geral & Revisão</h2>
+      <h2 class="question-title" style="font-size: 1.6rem; color: var(--text-main);">📊 Gabarito Geral & Revisão</h2>
       <p style="color: var(--text-muted); font-size: 0.9rem;">Revise abaixo as explicações de todas as alternativas e memorize os pontos-chave.</p>
     </div>
     <div style="display: flex; flex-direction: column; gap: 32px;">
@@ -481,13 +481,13 @@ function renderGabaritoGeral() {
     }
     
     html += `
-      <div class="feedback-section" style="${borderStyle} background: rgba(255,255,255,0.01); padding: 24px; border-radius: var(--radius-md);">
+      <div class="feedback-section" style="${borderStyle} background: var(--bg-card); padding: 24px; border-radius: var(--radius-md);">
         <div class="question-kicker" style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
           <span>Questão ${q.number} · ${q.type}</span>
           <strong style="color: ${statusColor}; font-size: 0.8rem; letter-spacing: 0.05em;">${statusText}</strong>
         </div>
-        <h3 style="color: #fff; font-size: 1.15rem; margin-bottom: 12px; font-weight: 600;">${q.topic}</h3>
-        <p style="font-size: 0.95rem; margin-bottom: 20px; white-space: pre-wrap; color: #d1d5db; line-height: 1.6;">${escapeHtml(q.prompt)}</p>
+        <h3 style="color: var(--text-main); font-size: 1.15rem; margin-bottom: 12px; font-weight: 600;">${q.topic}</h3>
+        <p style="font-size: 0.95rem; margin-bottom: 20px; white-space: pre-wrap; color: var(--text-main); line-height: 1.6;">${escapeHtml(q.prompt)}</p>
         
         <div class="options-list" style="margin-bottom: 16px;">
     `;
@@ -516,23 +516,23 @@ function renderGabaritoGeral() {
         html += `
           <div style="margin: -6px 0 16px 48px; padding: 12px 16px; background: rgba(16, 185, 129, 0.04); border-left: 3px solid var(--success); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.875rem;">
             <strong style="color: var(--success); display: block; margin-bottom: 4px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">✅ Por que é CORRETA:</strong>
-            <span style="color: #e5e7eb; line-height: 1.5;">${escapeHtml(q.feedback.correctReason)}</span>
+            <span style="color: var(--text-main); line-height: 1.5;">${escapeHtml(q.feedback.correctReason)}</span>
           </div>
         `;
       } else {
         const specFb = q.feedback.optionFeedback[o.label];
         if (specFb) {
           html += `
-            <div style="margin: -6px 0 16px 48px; padding: 12px 16px; background: rgba(255, 255, 255, 0.02); border-left: 3px solid var(--text-muted); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.875rem;">
+            <div style="margin: -6px 0 16px 48px; padding: 12px 16px; background: rgba(15, 23, 42, 0.02); border-left: 3px solid var(--text-muted); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.875rem;">
               <strong style="color: var(--text-muted); display: block; margin-bottom: 4px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">❌ Análise da Alternativa ${o.label}:</strong>
-              <span style="color: #d1d5db; line-height: 1.5;">${escapeHtml(specFb)}</span>
+              <span style="color: var(--text-main); line-height: 1.5;">${escapeHtml(specFb)}</span>
             </div>
           `;
         } else if (ans === o.label && q.feedback.incorrectReason) {
           html += `
             <div style="margin: -6px 0 16px 48px; padding: 12px 16px; background: rgba(239, 68, 68, 0.04); border-left: 3px solid var(--error); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.875rem;">
               <strong style="color: var(--error); display: block; margin-bottom: 4px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">❌ Por que é INCORRETA:</strong>
-              <span style="color: #e5e7eb; line-height: 1.5;">${escapeHtml(q.feedback.incorrectReason)}</span>
+              <span style="color: var(--text-main); line-height: 1.5;">${escapeHtml(q.feedback.incorrectReason)}</span>
             </div>
           `;
         }
@@ -545,9 +545,9 @@ function renderGabaritoGeral() {
     const hasSpecFbAny = q.options.some(o => q.feedback.optionFeedback[o.label]);
     if (q.feedback.incorrectReason && !hasSpecFbAny) {
       html += `
-        <div style="margin-bottom: 16px; padding: 12px 16px; background: rgba(255, 255, 255, 0.02); border-radius: var(--radius-sm); font-size: 0.875rem; border-left: 3px dashed var(--text-muted);">
+        <div style="margin-bottom: 16px; padding: 12px 16px; background: rgba(15, 23, 42, 0.02); border-radius: var(--radius-sm); font-size: 0.875rem; border-left: 3px dashed var(--text-muted);">
           <strong style="color: var(--text-muted); display: block; margin-bottom: 4px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">Justificativa das Alternativas Incorretas:</strong>
-          <span style="color: #d1d5db; line-height: 1.5;">${escapeHtml(q.feedback.incorrectReason)}</span>
+          <span style="color: var(--text-main); line-height: 1.5;">${escapeHtml(q.feedback.incorrectReason)}</span>
         </div>
       `;
     }
@@ -559,7 +559,7 @@ function renderGabaritoGeral() {
         html += `
           <div style="padding: 12px 16px; background: rgba(6, 182, 212, 0.03); border-left: 3px solid var(--primary); border-radius: var(--radius-sm); font-size: 0.875rem;">
             <strong style="color: var(--primary); display: block; margin-bottom: 4px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">📌 Ponto-chave para revisão:</strong>
-            <span style="color: #e5e7eb; line-height: 1.5;">${escapeHtml(q.feedback.keyPoint)}</span>
+            <span style="color: var(--text-main); line-height: 1.5;">${escapeHtml(q.feedback.keyPoint)}</span>
           </div>
         `;
       }
@@ -567,7 +567,7 @@ function renderGabaritoGeral() {
         html += `
           <div style="padding: 12px 16px; background: rgba(245, 158, 11, 0.03); border-left: 3px solid var(--warning); border-radius: var(--radius-sm); font-size: 0.875rem;">
             <strong style="color: var(--warning); display: block; margin-bottom: 4px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;">🎯 Take home message:</strong>
-            <span style="color: #e5e7eb; line-height: 1.5;">${escapeHtml(q.takeHome)}</span>
+            <span style="color: var(--text-main); line-height: 1.5;">${escapeHtml(q.takeHome)}</span>
           </div>
         `;
       }
@@ -1143,7 +1143,7 @@ function generateSelfContainedHtml(quizData) {
       function renderGabaritoGeral() {
         let html = \`
           <div style="margin-bottom: 20px; border-bottom: 1px solid var(--border-muted); padding-bottom: 12px;">
-            <h2 class="q-title" style="font-size: 1.5rem; color: #fff;">📊 Gabarito Geral & Revisão</h2>
+            <h2 class="q-title" style="font-size: 1.5rem; color: var(--text-main);">📊 Gabarito Geral & Revisão</h2>
             <p style="color: var(--text-muted); font-size: 0.85rem;">Revise abaixo as justificativas de todas as alternativas.</p>
           </div>
           <div style="display: flex; flex-direction: column; gap: 24px;">
@@ -1164,20 +1164,20 @@ function generateSelfContainedHtml(quizData) {
               statusColor = "var(--success)";
               borderStyle = "border-color: var(--success);";
             } else {
-              statusText = \`INCORRETA (Marcou \${ans})\`;
+              statusText = \`INCORRETA (Marcou \\\${ans})\`;
               statusColor = "var(--error)";
               borderStyle = "border-color: var(--error);";
             }
           }
 
           html += \`
-            <div class="fb-section" style="\${borderStyle} background: rgba(255,255,255,0.015); padding: 18px; border-radius: var(--radius-md); border-width: 1px; border-style: solid;">
+            <div class="fb-section" style="\\\${borderStyle} background: var(--bg-card); padding: 18px; border-radius: var(--radius-md); border-width: 1px; border-style: solid;">
               <div class="q-kicker" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                <span>Questão \${q.number} · \${q.type || 'Clínica'}</span>
-                <strong style="color: \${statusColor}; font-size: 0.75rem; letter-spacing: 0.05em;">\${statusText}</strong>
+                <span>Questão \\\${q.number} · \\\${q.type || 'Clínica'}</span>
+                <strong style="color: \\\${statusColor}; font-size: 0.75rem; letter-spacing: 0.05em;">\\\${statusText}</strong>
               </div>
-              <h3 style="color: #fff; font-size: 1.1rem; margin-bottom: 10px; font-weight: 600;">\${q.topic}</h3>
-              <p style="font-size: 0.9rem; margin-bottom: 16px; white-space: pre-wrap; color: #d1d5db;">\${escapeText(q.prompt)}</p>
+              <h3 style="color: var(--text-main); font-size: 1.1rem; margin-bottom: 10px; font-weight: 600;">\\\${q.topic}</h3>
+              <p style="font-size: 0.9rem; margin-bottom: 16px; white-space: pre-wrap; color: var(--text-main);">\\\${escapeText(q.prompt)}</p>
               
               <div class="options" style="margin-bottom: 12px; gap: 8px;">
           \`;
@@ -1195,9 +1195,9 @@ function generateSelfContainedHtml(quizData) {
             }
 
             html += \`
-              <div class="option \${optClass}" style="cursor: default; pointer-events: none; padding: 10px 14px; font-size: 0.9rem;">
-                <span class="option-letter">\${o.label}</span>
-                <span>\${escapeText(o.text)}</span>
+              <div class="option \\\${optClass}" style="cursor: default; pointer-events: none; padding: 10px 14px; font-size: 0.9rem;">
+                <span class="option-letter">\\\${o.label}</span>
+                <span>\\\${escapeText(o.text)}</span>
               </div>
             \`;
 
@@ -1205,23 +1205,23 @@ function generateSelfContainedHtml(quizData) {
               html += \`
                 <div style="margin: -4px 0 12px 40px; padding: 8px 12px; background: rgba(16, 185, 129, 0.04); border-left: 3px solid var(--success); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.8rem;">
                   <strong style="color: var(--success); display: block; margin-bottom: 2px;">Por que é CORRETA:</strong>
-                  <span style="color: #e5e7eb;">\${escapeText(q.feedback.correctReason)}</span>
+                  <span style="color: var(--text-main);">\\\${escapeText(q.feedback.correctReason)}</span>
                 </div>
               \`;
             } else {
               const specFb = q.feedback.optionFeedback ? q.feedback.optionFeedback[o.label] : null;
               if (specFb) {
                 html += \`
-                  <div style="margin: -4px 0 12px 40px; padding: 8px 12px; background: rgba(255, 255, 255, 0.02); border-left: 3px solid var(--text-muted); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.8rem;">
-                    <strong style="color: var(--text-muted); display: block; margin-bottom: 2px;">Análise da Alternativa \${o.label}:</strong>
-                    <span style="color: #d1d5db;">\${escapeText(specFb)}</span>
+                  <div style="margin: -4px 0 12px 40px; padding: 8px 12px; background: rgba(15, 23, 42, 0.02); border-left: 3px solid var(--text-muted); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.8rem;">
+                    <strong style="color: var(--text-muted); display: block; margin-bottom: 2px;">Análise da Alternativa \\\${o.label}:</strong>
+                    <span style="color: var(--text-main);">\\\${escapeText(specFb)}</span>
                   </div>
                 \`;
               } else if (ans === o.label && q.feedback.incorrectReason) {
                 html += \`
                   <div style="margin: -4px 0 12px 40px; padding: 8px 12px; background: rgba(239, 68, 68, 0.04); border-left: 3px solid var(--error); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.8rem;">
                     <strong style="color: var(--error); display: block; margin-bottom: 2px;">Por que é INCORRETA:</strong>
-                    <span style="color: #e5e7eb;">\${escapeText(q.feedback.incorrectReason)}</span>
+                    <span style="color: var(--text-main);">\\\${escapeText(q.feedback.incorrectReason)}</span>
                   </div>
                 \`;
               }
@@ -1233,20 +1233,20 @@ function generateSelfContainedHtml(quizData) {
           const hasSpecFbAny = q.options.some(o => q.feedback.optionFeedback && q.feedback.optionFeedback[o.label]);
           if (q.feedback.incorrectReason && !hasSpecFbAny) {
             html += \`
-              <div style="margin-bottom: 12px; padding: 10px 12px; background: rgba(255, 255, 255, 0.01); border-radius: var(--radius-sm); font-size: 0.8rem; border-left: 3px dashed var(--text-muted);">
+              <div style="margin-bottom: 12px; padding: 10px 12px; background: rgba(15, 23, 42, 0.02); border-radius: var(--radius-sm); font-size: 0.8rem; border-left: 3px dashed var(--text-muted);">
                 <strong style="color: var(--text-muted); display: block; margin-bottom: 2px;">Justificativa das Alternativas Incorretas:</strong>
-                <span style="color: #d1d5db;">\${escapeText(q.feedback.incorrectReason)}</span>
+                <span style="color: var(--text-main);">\\\${escapeText(q.feedback.incorrectReason)}</span>
               </div>
             \`;
           }
 
           if (q.feedback.keyPoint || q.takeHome) {
-            html += \`<div style="display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 12px;">\`;
+            html += \\\`<div style="display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 12px;">\\\`;
             if (q.feedback.keyPoint) {
               html += \`
                 <div style="padding: 8px 12px; background: rgba(6, 182, 212, 0.03); border-left: 3px solid var(--primary); border-radius: var(--radius-sm); font-size: 0.8rem;">
                   <strong style="color: var(--primary); display: block; margin-bottom: 2px;">📌 Ponto-chave:</strong>
-                  <span style="color: #e5e7eb;">\${escapeText(q.feedback.keyPoint)}</span>
+                  <span style="color: var(--text-main);">\\\${escapeText(q.feedback.keyPoint)}</span>
                 </div>
               \`;
             }
@@ -1254,7 +1254,7 @@ function generateSelfContainedHtml(quizData) {
               html += \`
                 <div style="padding: 8px 12px; background: rgba(245, 158, 11, 0.03); border-left: 3px solid var(--warning); border-radius: var(--radius-sm); font-size: 0.8rem;">
                   <strong style="color: var(--warning); display: block; margin-bottom: 2px;">🎯 Take home message:</strong>
-                  <span style="color: #e5e7eb;">\${escapeText(q.takeHome)}</span>
+                  <span style="color: var(--text-main);">\\\${escapeText(q.takeHome)}</span>
                 </div>
               \`;
             }
