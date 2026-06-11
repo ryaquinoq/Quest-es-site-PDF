@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Questões Interativas - Leitor de PDF Offline</title>
+  <meta name="description" content="Converta arquivos PDF e textos estruturados em simulados de questões interativos e exporte para rodar 100% offline.">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="logo-container">
+      <div class="logo-icon">Q</div>
+      <div class="logo-text">
+        <h1>Simulado Célere</h1>
+        <p>Leitor de PDF & Gerador Interativo</p>
+      </div>
+    </div>
+    
+    <!-- Navegação por Abas -->
+    <nav class="main-tabs" aria-label="Navegação do aplicativo">
+      <button class="tab-btn active" data-tab="import" id="tab-import">Importar</button>
+      <button class="tab-btn" data-tab="simulado" id="tab-simulado">Simulado</button>
+      <button class="tab-btn" data-tab="editor" id="tab-editor">Editar Questões</button>
+      <button class="tab-btn" data-tab="exportar" id="tab-exportar">Exportar</button>
+    </nav>
+  </header>
+
+  <!-- Container Geral -->
+  <main class="app-container">
+
+    <!-- ABA 1: IMPORTAÇÃO -->
+    <section id="import-tab" class="tab-content active">
+      <div class="glass-card">
+        <h2 style="margin-bottom: 8px;">Carregar Avaliação</h2>
+        <p style="color: var(--text-muted); margin-bottom: 24px;">
+          Carregue o arquivo PDF do simulado ou cole o conteúdo textual estruturado para compilar o simulado de forma automatizada e totalmente local.
+        </p>
+        
+        <div class="dropzone-container">
+          <!-- Dropzone de PDF -->
+          <div class="upload-box" id="dropzone">
+            <input type="file" id="file-input" accept="application/pdf" style="display: none;">
+            <div class="upload-icon">📄</div>
+            <h3>Carregar Arquivo PDF</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; max-width: 260px;">
+              Arraste e solte o PDF da avaliação aqui ou clique para selecionar de seu computador.
+            </p>
+          </div>
+          
+          <!-- Colar Texto Manual -->
+          <div class="paste-box">
+            <label class="form-label" for="paste-area">Colar Texto do Simulado</label>
+            <textarea class="textarea-input" id="paste-area" placeholder="Copie o texto do PDF e cole aqui se preferir processamento textual imediato..."></textarea>
+            <button class="btn btn-primary" id="btn-parse-text" style="align-self: flex-end;">
+              Processar Texto Estruturado
+            </button>
+          </div>
+        </div>
+        
+        <!-- Indicador de Progresso / Loading -->
+        <div class="loader-container" id="loader-container">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+            <span id="loader-text">Processando arquivo...</span>
+          </div>
+          <div class="loader-bar-outer">
+            <div class="loader-bar-inner" id="loader-bar"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Tutorial de Formato Recomendado -->
+      <div class="glass-card">
+        <h3>💡 Formato de Texto Suportado</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 8px; line-height: 1.6;">
+          Para garantir um parsing perfeito, o texto deve estar estruturado de maneira padrão, como no exemplo abaixo:
+        </p>
+        <pre style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: var(--radius-sm); font-size: 0.8rem; overflow-x: auto; color: var(--primary); border: 1px solid var(--border-muted); margin-top: 12px; line-height: 1.4;">
+Questão 1 — Epidemiologia e Rastreio | Clínica
+Um homem de 78 anos é trazido...
+A) Alternativa A  B) Alternativa B  C) Alternativa C  D) Alternativa D
+🎯 Take home message: Frase de revisão no final da questão.
+
+──────────────────────────────────
+GABARITO E FEEDBACK DETALHADO:
+──────────────────────────────────
+Questão 1 — Resposta correta: C
+✅ Por que C está CORRETA: Explicação detalhada da alternativa correta...
+❌ Por que as demais estão INCORRETAS: Explicação das incorretas...
+📌 Ponto-chave para revisão: Conceito fundamental a memorizar.</pre>
+      </div>
+    </section>
+
+    <!-- ABA 2: SIMULADO INTERATIVO -->
+    <section id="simulado-tab" class="tab-content">
+      <!-- Caso não tenha simulado carregado -->
+      <div class="glass-card no-data-state" id="simulado-placeholder">
+        <div class="no-data-icon">📥</div>
+        <h3>Nenhum Simulado Carregado</h3>
+        <p style="max-width: 320px; font-size: 0.9rem;">
+          Por favor, vá para a aba <strong>Importar</strong> e carregue um arquivo PDF ou insira o texto das questões para começar.
+        </p>
+        <button class="btn btn-primary btn-secondary" onclick="switchTab('import')">Ir para Importar</button>
+      </div>
+      
+      <!-- Painel Ativo do Simulado -->
+      <div class="simulado-grid" id="simulado-view" style="display: none;">
+        <!-- Barra Lateral de Navegação -->
+        <aside>
+          <div class="glass-card" style="padding: 16px; position: sticky; top: 90px;">
+            <h3 style="font-size: 1rem; margin-bottom: 12px; border-bottom: 1px solid var(--border-muted); padding-bottom: 8px;">Questões</h3>
+            <nav class="sidebar-nav" id="sidebar-nav" aria-label="Questões do simulado"></nav>
+          </div>
+        </aside>
+        
+        <!-- Palco da Questão Ativa -->
+        <main>
+          <!-- Estatísticas no topo do simulado -->
+          <div class="stats-header" id="stats-header"></div>
+          <div class="progress-outer">
+            <div class="progress-inner" id="progress-bar"></div>
+          </div>
+          
+          <article class="glass-card stage" id="question-stage"></article>
+        </main>
+      </div>
+    </section>
+
+    <!-- ABA 3: EDITOR DE QUESTÕES -->
+    <section id="editor-tab" class="tab-content">
+      <!-- Placeholder se não houver dados -->
+      <div class="glass-card no-data-state" id="editor-placeholder">
+        <div class="no-data-icon">✏️</div>
+        <h3>Nenhum Simulado para Editar</h3>
+        <p style="max-width: 320px; font-size: 0.9rem;">
+          Carregue um simulado na aba <strong>Importar</strong> para poder editar e calibrar seus enunciados e gabaritos.
+        </p>
+      </div>
+      
+      <!-- Editor View -->
+      <div class="editor-grid" id="editor-view" style="display: none;">
+        <!-- Navegação Lateral do Editor -->
+        <aside class="glass-card" style="padding: 16px; max-height: 80vh; display: flex; flex-direction: column;">
+          <h3 style="font-size: 1rem; margin-bottom: 12px; border-bottom: 1px solid var(--border-muted); padding-bottom: 8px;">Lista de Questões</h3>
+          <div class="editor-sidebar" id="editor-sidebar"></div>
+        </aside>
+        
+        <!-- Formulário do Editor -->
+        <main class="glass-card">
+          <form id="editor-form">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-muted); padding-bottom: 12px;">
+              <h3>Editar Questão Ativa</h3>
+              <span style="font-size: 0.85rem; color: var(--primary); font-weight: 700;">Salva automaticamente ao navegar</span>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="edit-topic">Tema / Assunto</label>
+                <input type="text" class="form-input" id="edit-topic">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="edit-type">Tipo de Questão</label>
+                <input type="text" class="form-input" id="edit-type">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="edit-prompt">Enunciado da Questão</label>
+              <textarea class="form-textarea" id="edit-prompt" style="height: 120px;"></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Alternativas</label>
+              <div class="options-editor-list">
+                <div class="opt-editor-row">
+                  <span class="opt-editor-letter">A</span>
+                  <input type="text" class="form-input" id="edit-opt-a">
+                </div>
+                <div class="opt-editor-row">
+                  <span class="opt-editor-letter">B</span>
+                  <input type="text" class="form-input" id="edit-opt-b">
+                </div>
+                <div class="opt-editor-row">
+                  <span class="opt-editor-letter">C</span>
+                  <input type="text" class="form-input" id="edit-opt-c">
+                </div>
+                <div class="opt-editor-row">
+                  <span class="opt-editor-letter">D</span>
+                  <input type="text" class="form-input" id="edit-opt-d">
+                </div>
+              </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 120px 1fr; gap: 20px; margin-top: 24px;">
+              <div class="form-group">
+                <label class="form-label" for="edit-correct">Opção Correta</label>
+                <select class="form-input" id="edit-correct">
+                  <option value="">Nenhum</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="edit-takehome">🎯 Take Home Message</label>
+                <input type="text" class="form-input" id="edit-takehome">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="edit-reason-correct">✅ Justificativa da Correta</label>
+              <textarea class="form-textarea" id="edit-reason-correct"></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="edit-reason-incorrect">❌ Justificativa das Incorretas</label>
+              <textarea class="form-textarea" id="edit-reason-incorrect"></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="edit-keypoint">📌 Ponto-chave para revisão</label>
+              <textarea class="form-textarea" id="edit-keypoint" style="height: 60px;"></textarea>
+            </div>
+          </form>
+        </main>
+      </div>
+    </section>
+
+    <!-- ABA 4: EXPORTAR SIMULADO -->
+    <section id="exportar-tab" class="tab-content">
+      <!-- Placeholder se não houver dados -->
+      <div class="glass-card no-data-state" id="export-placeholder">
+        <div class="no-data-icon">📤</div>
+        <h3>Nenhum Simulado para Exportar</h3>
+        <p style="max-width: 320px; font-size: 0.9rem;">
+          Carregue e organize as questões na aba <strong>Importar</strong> antes de baixar os arquivos consolidados.
+        </p>
+      </div>
+      
+      <!-- Export View -->
+      <div id="export-view" style="display: none;">
+        <div class="glass-card">
+          <h2>Exportar Simulado Formatado</h2>
+          <p style="color: var(--text-muted); margin-bottom: 24px;">
+            Baixe o simulado processado em formatos compatíveis para estudo offline em qualquer navegador ou para backup dos dados estruturados.
+          </p>
+          
+          <div class="export-card-grid">
+            <!-- Exportar HTML -->
+            <div class="export-tile">
+              <div class="export-tile-icon">🌐</div>
+              <h3 class="export-tile-title">Simulado Completo (HTML)</h3>
+              <p class="export-tile-desc">
+                Um único arquivo HTML autocontido com o design premium e as questões embutidas. Abre em celulares e PCs 100% offline.
+              </p>
+              <button class="btn btn-primary" id="btn-download-html" style="width: 100%; margin-top: auto;">
+                Baixar Simulado (.html)
+              </button>
+            </div>
+            
+            <!-- Exportar JSON -->
+            <div class="export-tile">
+              <div class="export-tile-icon">⚙️</div>
+              <h3 class="export-tile-title">Dados Estruturados (JSON)</h3>
+              <p class="export-tile-desc">
+                Estrutura de dados bruta contendo todas as informações tratadas de metadados, questões e gabaritos em formato JSON.
+              </p>
+              <button class="btn btn-secondary" id="btn-download-json" style="width: 100%; margin-top: auto;">
+                Baixar Dados (.json)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- PDF.js Core Library (Mozilla) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+
+  <!-- Scripts do App -->
+  <script src="parser.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
