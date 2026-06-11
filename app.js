@@ -986,8 +986,8 @@ function generateSelfContainedHtml(quizData) {
     <div class="logo-container">
       <div class="logo-icon">Q</div>
       <div class="logo-text">
-        <h1 id="header-title">MedQuestion</h1>
-        <p>MedQuestion Interativo Offline</p>
+        <h1 id="header-title">Med<span style="background: linear-gradient(135deg, var(--primary), #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Up</span></h1>
+        <p>MedUp Interativo Offline</p>
       </div>
     </div>
   </header>
@@ -1024,7 +1024,11 @@ function generateSelfContainedHtml(quizData) {
       };
       
       function init() {
-        elements.headerTitle.textContent = quiz.metadata.title || "MedQuestion";
+        if (quiz.metadata.title) {
+          elements.headerTitle.textContent = quiz.metadata.title;
+        } else {
+          elements.headerTitle.innerHTML = 'Med<span style="background: linear-gradient(135deg, var(--primary), #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Up</span>';
+        }
         render();
       }
       
