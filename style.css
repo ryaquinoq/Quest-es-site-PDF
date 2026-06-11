@@ -179,12 +179,12 @@ body {
 }
 
 .tab-content {
-  display: none;
+  display: none !important;
   animation: fadeIn var(--transition-normal);
 }
 
 .tab-content.active {
-  display: block;
+  display: block !important;
 }
 
 /* Card Glassmorphic */
