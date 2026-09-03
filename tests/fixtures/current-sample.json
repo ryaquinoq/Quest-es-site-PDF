@@ -1,0 +1,363 @@
+{
+  "createdAt": "2026-06-11T13:42:27.744Z",
+  "metadata": {
+    "distribution": [],
+    "intro": "Bem-vindo! Como professor de medicina focado em raciocínio clínico e diagnóstico,\nestruturei este simulado para desafiar sua capacidade de aplicar o conhecimento teórico na\nprática médica diária, baseando-me estritamente nas aulas e materiais fornecidos.\n📚 Temas Principais Abordados\n1. Diagnóstico e Manejo de Quadros Agudos: Intoxicação vs. Abstinência Alcoólica\ne os riscos terapêuticos.\n2. Complicações Neurológicas: O espectro da Síndrome de Wernicke-Korsakoff.\n3. Farmacologia da Prevenção de Recaídas: Mecanismos do Dissulfiram, Naltrexona\ne Acamprosato.\n4. Psicopatologia das Drogas Ilícitas: Síndrome Amotivacional da Maconha e o\nmecanismo neuroquímico da Cocaína.\nPerfil da Avaliação: Serão 10 questões , divididas em 70% Álcool e 30% Outras Drogas .\nA prova contém 7 questões clínicas (70%) baseadas em vinhetas e 3 questões\nconceituais aplicadas (30%) .\nBoa prova!\n\n\nCADERNO DE QUESTÕES",
+    "themes": [],
+    "title": "Bem-vindo! Como professor de medicina focado em raciocínio clínico e diagnóstico, estruturei este simulado para desafiar sua capacidade de aplicar o conhecimento teórico na prática médica diária, baseando-me estritamente nas aulas e materiais fornecidos."
+  },
+  "questions": [
+    {
+      "feedback": {
+        "correctOption": "B",
+        "correctReason": "O manejo seguro da intoxicação alcoólica aguda com extrema agitação e comportamento mal-adaptativo (querer brigar) foca em contenção física e controle neurológico sem deprimir ainda mais a respiração. O material cita explicitamente que o Haloperidol atua no bloqueio D2 para controlar a agitação e que BDZs devem ser evitados nesta fase.",
+        "incorrectReason": "A) Diazepam é um benzodiazepínico (BDZ). Como o álcool já é um depressor do SNC, associar um BDZ em fase de intoxicação pode levar ao coma ou depressão respiratória aguda fatal. C) Tiamina é vital no alcoolismo crônico, mas a reposição imediata trata a encefalopatia de Wernicke, não a contenção do comportamento violento e psicomotor agudo da intoxicação. D) O Dissulfiram é para a prevenção de recaídas em fase de abstenção. Dar Dissulfiram a alguém intoxicado geraria aversão imediata e alto risco de colapso circulatório fatal devido ao acúmulo de acetaldeído.",
+        "keyPoint": "Intoxicação aguda com agitação (álcool já no sangue) = Haloperidol (evite BDZ). Síndrome de Abstinência (falta do álcool) = Diazepam (BDZ).",
+        "optionFeedback": {}
+      },
+      "id": "q-1",
+      "number": 1,
+      "options": [
+        {
+          "label": "A",
+          "text": "Administrar Diazepam intravenoso para sedação rápida e controle da agressividade."
+        },
+        {
+          "label": "B",
+          "text": "Realizar contenção física e administrar Haloperidol para bloqueio dopaminérgico."
+        },
+        {
+          "label": "C",
+          "text": "Iniciar reposição com grandes doses de Tiamina parenteral imediatamente."
+        },
+        {
+          "label": "D",
+          "text": "Administrar Dissulfiram para induzir aversão ao álcool ingerido."
+        }
+      ],
+      "prompt": "Paciente do sexo masculino, 28 anos, dá entrada no pronto-socorro trazido pela polícia militar. Apresenta forte hálito etílico, rubor facial, fala arrastada (disartria) e incoordenação motora (ataxia). Encontra-se extremamente agitado, agressivo e com comportamento mal-adaptativo, tentando agredir a equipe de enfermagem. Após descartar outros distúrbios físicos e mentais, qual a conduta terapêutica imediata mais adequada segundo o material de estudo?",
+      "takeHome": "Na intoxicação alcoólica aguda com agitação motora extrema, deve-se evitar benzodiazepínicos para não potencializar a depressão respiratória; prefere-se a contenção física aliada a antipsicóticos (Haloperidol).",
+      "topic": "Intoxicação Aguda pelo Álcool",
+      "type": "Clínica"
+    },
+    {
+      "feedback": {
+        "correctOption": "C",
+        "correctReason": "O paciente apresenta alucinações visuais ( insetos, animais ) após apenas 36 horas sem beber, com \"sensório claro\" (sabe quem é e onde está). O material define isso clinicamente como Alucinose Alcoólica, que se manifesta nas primeiras 48h da cessação, cursando sem delirium .",
+        "incorrectReason": "A) O Delirium Tremens só se manifesta tardiamente (geralmente após uma semana) e obrigatoriamente há profunda turvação da consciência (o paciente perde a noção de espaço/tempo). B) Intoxicação Idiossincrática ocorre pela ingestão recente de uma quantidade irrisória de álcool, gerando comportamento inadaptativo, e não na cessação (abstinência). D) A Síndrome de Wernicke manifesta-se tipicamente com ataxia, oftalmoplegia e confusão, sem as características puras de alucinação vívida pós-cessação da Alucinose.",
+        "keyPoint": "Diferença crítica na abstinência: Sensório preservado + <48h = Alucinose. Desorientação mental grave + >1 semana = Delirium Tremens.",
+        "optionFeedback": {
+          "A": "O Delirium Tremens só se manifesta tardiamente (geralmente após uma semana) e obrigatoriamente há profunda turvação da consciência (o paciente perde a noção de espaço/tempo).",
+          "B": "Intoxicação Idiossincrática ocorre pela ingestão recente de uma quantidade irrisória de álcool, gerando comportamento inadaptativo, e não na cessação (abstinência). D) A Síndrome de Wernicke manifesta-se tipicamente com ataxia, oftalmoplegia e confusão, sem as características puras de alucinação vívida pós-cessação da Alucinose."
+        }
+      },
+      "id": "q-2",
+      "number": 2,
+      "options": [
+        {
+          "label": "A",
+          "text": "Delirium Tremens; decorrente de neuroadaptação celular severa após 1 semana de abstinência."
+        },
+        {
+          "label": "B",
+          "text": "Intoxicação Idiossincrática; decorrente de extrema sensibilidade após ingestão de pequenas doses."
+        },
+        {
+          "label": "C",
+          "text": "Alucinose Alcoólica; caracterizada por alucinações nas primeiras 48 horas, mas com sensório claro."
+        },
+        {
+          "label": "D",
+          "text": "Encefalopatia de Wernicke; decorrente da deficiência severa de vitamina B1 (tiamina)."
+        }
+      ],
+      "prompt": "Um homem de 45 anos, etilista crônico de longa data, é internado para o tratamento de uma pneumonia. Cerca de 36 horas após a sua última ingestão de álcool, ele relata estar vendo \"animais estranhos andando pelas paredes\" do quarto. Apesar do quadro visual vívido, o paciente sabe seu nome, reconhece que está no hospital e informa a data corretamente. Apresenta tremores amplos nas mãos e sudorese. Qual é o diagnóstico mais provável e a base fisiopatológica do quadro visual?",
+      "takeHome": "A Alucinose Alcoólica surge precocemente (primeiras 48h) e preserva o sensório; o Delirium Tremens é tardio (após 1 semana) e cursa com profunda desorientação e turvação da consciência.",
+      "topic": "Síndrome de Abstinência",
+      "type": "Clínica"
+    },
+    {
+      "feedback": {
+        "correctOption": "A",
+        "correctReason": "A clássica tríade de ataxia, oftalmoplegia e confusão em um alcoolista aponta inequivocamente para a Encefalopatia Alcoólica (Síndrome de Wernicke). Os materiais indicam o tratamento imediato com grandes doses de tiamina parenteral (50 a 100mg diários) para evitar que o quadro evolua para a Síndrome de Korsakoff (distúrbio amnésico irreversível).",
+        "incorrectReason": "B) Haloperidol trataria agitação e surtos psicóticos de intoxicação, não resolve a carência de vitamina B1. C) Diazepam trata os sintomas excitatórios da abstinência e o risco de convulsão, mas não atua na neurotoxicidade por deficiência de tiamina. D) Acamprosato trata o craving (fissura) modulando glutamato no tratamento em longo prazo, ineficaz para urgências de desnutrição neural.",
+        "keyPoint": "Wernicke é a emergência de fase aguda que exige Vitamina B1 (Tiamina). Se negligenciada, torna-se Korsakoff (demência e perda de memória irreversíveis).",
+        "optionFeedback": {}
+      },
+      "id": "q-3",
+      "number": 3,
+      "options": [
+        {
+          "label": "A",
+          "text": "Tiamina parenteral em doses de 50 a 100 mg/dia."
+        },
+        {
+          "label": "B",
+          "text": "Haloperidol 5 mg intramuscular."
+        },
+        {
+          "label": "C",
+          "text": "Diazepam 10 mg por via oral ou intravenosa."
+        },
+        {
+          "label": "D",
+          "text": "Acamprosato 1998 mg/dia associado à psicoterapia."
+        }
+      ],
+      "prompt": "Um paciente de 55 anos, em situação de rua e com histórico de alcoolismo diário há 20 anos, é levado à UPA. Ao exame neurológico, o médico plantonista nota oftalmoplegia, nistagmo evocado pelo olhar, marcha atáxica (desequilíbrio profundo) e importante estado de confusão mental. Qual a conduta farmacológica mandatória e urgente para evitar que este paciente desenvolva um déficit amnésico de curto prazo irreversível?",
+      "takeHome": "A tríade de ataxia, oftalmoplegia e confusão mental indica Síndrome de Wernicke, uma emergência neurológica cujo tratamento obrigatório é a reposição imediata de altas doses de Tiamina (Vitamina B1) parenteral.",
+      "topic": "Encefalopatia Alcoólica",
+      "type": "Clínica"
+    },
+    {
+      "feedback": {
+        "correctOption": "C",
+        "correctReason": "O Dissulfiram (Antietanol / Sarcoton) funciona como um agente sensibilizante. Ele inibe a enzima aldeído desidrogenase . Sem essa enzima, o álcool (etanol) metaboliza-se até o acetaldeído e para aí, acumulando essa toxina no sangue, gerando rubor, vasodilação e forte mal-estar (efeito educativo pelo medo).",
+        "incorrectReason": "A) Naltrexona atua como antagonista de opioides, reduzindo o prazer (recompensa), mas não gera acúmulo de metabólitos tóxicos se a pessoa beber. B) Acamprosato bloqueia a excitabilidade glutaminérgica (restaura a homeostase celular crônica), não bloqueia enzimas hepáticas de metabolização do álcool. D) Diazepam é da classe de Benzodiazepínicos e atua em receptores GABAérgicos, não enzimáticos.",
+        "keyPoint": "Dissulfiram atua no metabolismo (bloqueia aldeído desidrogenase -> acumula toxina). Naltrexona atua na recompensa (antagonista opioide -> tira o barato).",
+        "optionFeedback": {
+          "A": "Naltrexona atua como antagonista de opioides, reduzindo o prazer (recompensa), mas não gera acúmulo de metabólitos tóxicos se a pessoa beber.",
+          "B": "Acamprosato bloqueia a excitabilidade glutaminérgica (restaura a homeostase celular crônica), não bloqueia enzimas hepáticas de metabolização do álcool. D) Diazepam é da classe de Benzodiazepínicos e atua em receptores GABAérgicos, não enzimáticos."
+        }
+      },
+      "id": "q-4",
+      "number": 4,
+      "options": [
+        {
+          "label": "A",
+          "text": "Naltrexona; risco de síndrome amotivacional profunda."
+        },
+        {
+          "label": "B",
+          "text": "Dissulfiram; risco de reação física aversiva, queda pressórica brusca e choque."
+        },
+        {
+          "label": "C",
+          "text": "Acamprosato; risco de hiperatividade autonômica e convulsões."
+        },
+        {
+          "label": "D",
+          "text": "Diazepam; risco de dependência cruzada e overdose."
+        }
+      ],
+      "prompt": "A adesão ao tratamento de manutenção do alcoolismo costuma ser um desafio. Um paciente hipertenso e com boa função hepática concorda em utilizar uma medicação que atua inibindo a enzima aldeído desidrogenase. O médico explica que o uso do medicamento exigirá responsabilidade, pois o consumo de qualquer quantidade de álcool gerará acúmulo de acetaldeído no corpo. Qual medicamento foi prescrito e qual o risco fisiológico dessa interação?",
+      "takeHome": "O Dissulfiram inibe o metabolismo do etanol na fase do acetaldeído; seu acúmulo promove um quadro aversivo intenso (\"efeito antabuse\") que força a abstinência pelo medo da reação física.",
+      "topic": "Farmacologia do Alcoolismo",
+      "type": "Conceito"
+    },
+    {
+      "feedback": {
+        "correctOption": "C",
+        "correctReason": "O alcoolismo tipo Gama é classificado nos materiais como o quadro tradicional e mais destrutivo, que arrasa as finanças, a família e a moral do doente. A pedra angular de sua terapêutica ensinada em aula é \"evitar o primeiro gole\" devido à extrema neuroadaptação.",
+        "incorrectReason": "A) O tipo Alfa é quando o paciente usa a bebida \"como terapia\" aos finais de semana para aliviar ansiedade. B) O tipo Beta é o uso contínuo já exibindo danos puramente físicos (ex. hepatopatia), mas sem o quadro grave de deterioração psicossocial do Gama. D) O tipo Épsilon é clinicamente chamado de Dipsomania, onde ocorrem surtos incontroláveis periódicos em vez do padrão crônico e destrutivo contínuo do Gama.",
+        "keyPoint": "Alcoolismo Gama = doença gravíssima, tradicional e focada no mandamento de \"evitar o primeiro gole\". Épsilon = Dipsomania.",
+        "optionFeedback": {
+          "A": "O tipo Alfa é quando o paciente usa a bebida \"como terapia\" aos finais de semana para aliviar ansiedade.",
+          "B": "O tipo Beta é o uso contínuo já exibindo danos puramente físicos (ex. hepatopatia), mas sem o quadro grave de deterioração psicossocial do Gama. D) O tipo Épsilon é clinicamente chamado de Dipsomania, onde ocorrem surtos incontroláveis periódicos em vez do padrão crônico e destrutivo contínuo do Gama."
+        }
+      },
+      "id": "q-5",
+      "number": 5,
+      "options": [
+        {
+          "label": "A",
+          "text": "Alcoolismo Alpha; estratégia: beber controlado."
+        },
+        {
+          "label": "B",
+          "text": "Alcoolismo Beta; estratégia: focar na cura da hepatopatia orgânica."
+        },
+        {
+          "label": "C",
+          "text": "Alcoolismo Gama; estratégia: abstinência total e evitar o 1º gole."
+        },
+        {
+          "label": "D",
+          "text": "Alcoolismo Épsilon; estratégia: monitoramento das crises de dipsomania."
+        }
+      ],
+      "prompt": "Durante uma consulta no ambulatório de psiquiatria, a esposa de um paciente de 50 anos relata chorando que o marido perdeu o emprego, vendeu bens da família para comprar bebida e apresenta destruição total de sua vida moral e financeira. O paciente afirma não ter controle: se tomar o primeiro copo, não consegue parar. Segundo a classificação dos padrões de ingestão abordada em aula, qual o tipo clínico deste alcoolismo e sua principal estratégia inicial?",
+      "takeHome": "O alcoolismo Tipo Gama é a forma tradicional e mais grave, destruindo todas as esferas sociais e morais do indivíduo; a premissa de tratamento é a abstinência rigorosa (\"evitar o primeiro gole\").",
+      "topic": "Tipos de Alcoolismo",
+      "type": "Clínica"
+    },
+    {
+      "feedback": {
+        "correctOption": "B",
+        "correctReason": "A ascite (\"barriga d'água\") ocorre pelas sérias lesões no fígado (infiltração gordurosa e cirrose) que dificultam a produção proteica de retenção hídrica nos vasos. Paralelamente, o sistema endócrino sofre com a queda dos níveis de testosterona e aumento periférico de estrogênio nos homens, prejudicando a performance física, mesmo que o desejo cerebral continue íntegro e elevado.",
+        "incorrectReason": "A) Embora ocorra ascite por lesão hepática, a hipotensão ou a testosterona não é \"puramente\" um efeito só do hipoalbuminismo hepático, mas do acometimento endócrino direto. C) Redução do hipocampo gera déficits de memória e cognição, não tem conexão direta com a indução orgânica de ascite ou impotência. D) Apesar do piloroespasmo gerar náuseas e vômitos, a ascite clássica em alcoólicos é causada majoritariamente por comprometimento do fígado (cirrose), não só desnutrição gástrica.",
+        "keyPoint": "A disfunção endócrina do álcool gera hipogonadismo funcional em homens e mulheres (impotência apesar da vontade). A hepatopatia progride de esteatose (gordura) para cirrose irreversível e ascite.",
+        "optionFeedback": {}
+      },
+      "id": "q-6",
+      "number": 6,
+      "options": [
+        {
+          "label": "A",
+          "text": "O álcool lesa o fígado causando hipoalbuminemia e extravasamento de líquidos (ascite), e gera um efeito endócrino periférico que reduz testosterona, prejudicando a ereção apesar do estímulo central."
+        },
+        {
+          "label": "B",
+          "text": "O uso crônico do álcool inibe diretamente a área tegmental ventral, reduzindo o volume do hipocampo e causando simultaneamente a ascite e a diminuição da testosterona."
+        },
+        {
+          "label": "C",
+          "text": "A cardiomiopatia alcoólica eleva a pressão arterial e a pressão portal, o que causa disfunção erétil psicogênica e ascite por bloqueio simpático."
+        },
+        {
+          "label": "D",
+          "text": "O álcool aumenta consideravelmente a secreção de mucina e causa piloroespasmo, impedindo a absorção de nutrientes, o que gera ascite puramente por desnutrição sem correlação hepática."
+        }
+      ],
+      "prompt": "Um paciente do sexo masculino, 60 anos, bebedor crônico, queixa-se de disfunção erétil, fadiga muscular acentuada e aumento do volume abdominal. Ao exame físico e laboratorial, o médico constata ascite volumosa (\"barriga d'água\") e baixos níveis séricos de testosterona, embora o paciente refira que seu desejo sexual continua preservado ou até aumentado mentalmente. Qual o mecanismo fisiopatológico principal que interliga os achados sistêmicos desse paciente?",
+      "takeHome": "O uso crônico de álcool afeta múltiplos sistemas; reduz hormônios sexuais periféricos (impotência) apesar do desejo central, e falha a produção hepática de proteínas, promovendo inflamação crônica e barriga d'água (ascite).",
+      "topic": "Consequências Sistêmicas",
+      "type": "Clínica"
+    },
+    {
+      "feedback": {
+        "correctOption": "D",
+        "correctReason": "A via de recompensa (Dopamina fluindo da área tegmental ventral para o núcleo accumbens) é ativada em grande parte pelas endorfinas em usuários de álcool. A Naltrexona atua perfeitamente como um antagonista de receptores de opioides, impedindo esse acionamento e, consequentemente, não permitindo o \"orgasmo mental/prazer\" do paciente, ajudando a quebrar o ciclo.",
+        "incorrectReason": "A) Haloperidol bloqueia a dopamina em fase de agitação extrema, não sendo o fármaco contínuo de primeira linha prescrito para manutenção/prevenção via opioides. B) Acamprosato atua de fato na manutenção, mas sua via biológica é através da modulação de glutamato (Receptor NMDA), e não a de opioides. C) Tiamina é uma vitamina (B1), sem ação direta antagonista em receptores de endorfinas.",
+        "keyPoint": "Naltrexona foca em bloquear o ciclo de prazer (mecanismo antagonista de opioide). Reduz o craving (desejo forte).",
+        "optionFeedback": {
+          "A": "Haloperidol bloqueia a dopamina em fase de agitação extrema, não sendo o fármaco contínuo de primeira linha prescrito para manutenção/prevenção via opioides.",
+          "B": "Acamprosato atua de fato na manutenção, mas sua via biológica é através da modulação de glutamato (Receptor NMDA), e não a de opioides.",
+          "C": "Tiamina é uma vitamina (B1), sem ação direta antagonista em receptores de endorfinas."
+        }
+      },
+      "id": "q-7",
+      "number": 7,
+      "options": [
+        {
+          "label": "A",
+          "text": "Haloperidol"
+        },
+        {
+          "label": "B",
+          "text": "Acamprosato"
+        },
+        {
+          "label": "C",
+          "text": "Tiamina"
+        },
+        {
+          "label": "D",
+          "text": "Naltrexona"
+        }
+      ],
+      "prompt": "A via de recompensa cerebral é o pilar biológico da dependência. O álcool atua no sistema que liga a área tegmental ventral ao núcleo accumbens, liberando dopamina mediada por endorfinas endógenas. Na tentativa de impedir o reforço positivo (o prazer associado ao consumo), utiliza-se clinicamente um antagonista dos receptores opioides. Qual é este fármaco?",
+      "takeHome": "A Naltrexona bloqueia os receptores de opioides no cérebro, impedindo as endorfinas de completarem o circuito de recompensa, \"cortando o prazer\" da ingestão do álcool.",
+      "topic": "Neuroadaptação e Tratamento",
+      "type": "Conceito"
+    },
+    {
+      "feedback": {
+        "correctOption": "B",
+        "correctReason": "A Síndrome Amotivacional é a mais clássica manifestação descrita na psicopatologia do uso crônico de derivados canabinoides ( Cannabis sativa - Maconha). Ocorre uma grave e insidiosa perda de interesse, apatia e abandono de metas educacionais ou profissionais.",
+        "incorrectReason": "A) Apesar do THC ter propriedades alucinógenas e de a maconha atuar como gatilho para quadros psicóticos (como a Esquizofrenia) em indivíduos geneticamente predispostos, o caso não relata nenhum quadro psicótico, delírio ou alucinação. C) A Intoxicação Idiossincrática refere-se à agitação profunda gerada pelo álcool em baixas doses, não tem relação com o sintoma depressor do uso de maconha. D) Dipsomania é restrita ao padrão episódico e incontrolável do uso do álcool (Alcoolismo Épsilon), sem relação etimológica com maconha.",
+        "keyPoint": "O principal traço comportamental do usuário crônico de maconha na clínica e no estudo médico é a Síndrome Amotivacional (perda do \"drive\" ou motivação de vida).",
+        "optionFeedback": {}
+      },
+      "id": "q-8",
+      "number": 8,
+      "options": [
+        {
+          "label": "A",
+          "text": "Esquizofrenia induzida por Delta-9-THC."
+        },
+        {
+          "label": "B",
+          "text": "Síndrome Amotivacional."
+        },
+        {
+          "label": "C",
+          "text": "Tolerância cruzada e Intoxicação Idiossincrática."
+        },
+        {
+          "label": "D",
+          "text": "Dipsomania canabinoide."
+        }
+      ],
+      "prompt": "Um jovem de 21 anos, anteriormente descrito como o melhor aluno de sua turma na faculdade de engenharia, é levado à consulta pelos pais. Nos últimos dois anos, após iniciar uso diário e pesado de maconha ( Cannabis sativa ), ele abandonou os estudos, não procura emprego, parou de cuidar da aparência e passa o dia todo fumando e dormindo. Não há delírios ou alucinações presentes. Qual é a principal suspeita clínica relacionada ao uso da substância neste caso?",
+      "takeHome": "O uso pesado e crônico de maconha pode causar a Síndrome Amotivacional, onde o indivíduo perde completamente a iniciativa, o interesse em evoluir pessoalmente e a motivação para atividades diárias.",
+      "topic": "Maconha e Alterações Psicológicas",
+      "type": "Clínica"
+    },
+    {
+      "feedback": {
+        "correctOption": "C",
+        "correctReason": "A cocaína é um poderoso estimulante. A nível de fenda sináptica, o princípio ativo da droga atua bloqueando fisicamente as bombas de recaptação (reabsorção) da dopamina no neurônio pré-sináptico. A dopamina fica \"presa\" e livre na fenda, bombardeando os receptores do neurônio pós-sináptico repetidas vezes, gerando altíssima euforia transitória.",
+        "incorrectReason": "A) Acamprosato atua no sistema de receptores NMDA do glutamato. B) O efeito de estimulação direta e sedativa que imita o GABA é feito primariamente pelos depressores, como o álcool ou anestésicos, enquanto a cocaína é puro estimulante catabólico. D) Quem inibe a aldeído desidrogenase é a medicação Dissulfiram.",
+        "keyPoint": "Cocaína = Bloqueio da recaptação de Dopamina. Causa acúmulo sináptico excessivo do neurotransmissor, seguida de depleção rápida (fissura).",
+        "optionFeedback": {
+          "A": "Acamprosato atua no sistema de receptores NMDA do glutamato.",
+          "B": "O efeito de estimulação direta e sedativa que imita o GABA é feito primariamente pelos depressores, como o álcool ou anestésicos, enquanto a cocaína é puro estimulante catabólico. D) Quem inibe a aldeído desidrogenase é a medicação Dissulfiram."
+        }
+      },
+      "id": "q-9",
+      "number": 9,
+      "options": [
+        {
+          "label": "A",
+          "text": "Ela atua como um co-agonista dos receptores NMDA do glutamato."
+        },
+        {
+          "label": "B",
+          "text": "Ela estimula diretamente a liberação de Gaba e deprime o sistema nervoso central."
+        },
+        {
+          "label": "C",
+          "text": "Ela promove o bloqueio da reabsorção (recaptação) de dopamina, superestimulando o receptor pós-sináptico."
+        },
+        {
+          "label": "D",
+          "text": "Ela inibe a enzima aldeído desidrogenase, acumulando catecolaminas no cérebro."
+        }
+      ],
+      "prompt": "Paciente chega ao pronto-socorro taquicárdico, com midríase, sudorese, hipertensão e referindo intenso prazer e euforia fugaz seguido de forte irritabilidade. A esposa traz um invólucro plástico contendo pó branco encontrado com o paciente. A avaliação rápida sugere intoxicação por cocaína. Qual é o exato mecanismo fisiopatológico dessa droga na fenda sináptica que gera tais sintomas adrenérgicos e de hiperrecompensa?",
+      "takeHome": "A cocaína é um forte psicoestimulante que age impedindo que a dopamina seja \"limpa\" da fenda sináptica (bloqueio da recaptação), gerando um acúmulo maciço e estimulação excessiva do sistema de recompensa.",
+      "topic": "Cocaína e Neuroquímica",
+      "type": "Clínica"
+    },
+    {
+      "feedback": {
+        "correctOption": "C",
+        "correctReason": "O texto da aula traz o alerta clínico de emergência sobre as drogas solventes: a via pulmonar associada à sedação forte que a substância provoca no corpo do indivíduo (principalmente jovens e crianças desnutridas) gera um altíssimo risco de morte abrupta por asfixia, visto que o paciente inala pelo \"saco\" até perder a consciência e não ter oxigênio disponível.",
+        "incorrectReason": "A) O sangramento alveolar não é a principal ocorrência típica descrita para o óbito emergencial nessas condições. B) As consequências do tolueno (frequentemente presente na cola de sapateiro) envolvem danos hepáticos e orgânicos, mas a cirrose não é a complicação imediata ( aguda ) e fatal durante o ato. D) Síndrome de Wernicke é patologia alcoólica (carência de vitamina B1 crônica).",
+        "keyPoint": "O perigo imediato nas drogas inalantes em vias fechadas (solventes, colas no \"saquinho\") é o rebaixamento do sensório seguido de parada por ASFIXIA.",
+        "optionFeedback": {
+          "A": "O sangramento alveolar não é a principal ocorrência típica descrita para o óbito emergencial nessas condições.",
+          "B": "As consequências do tolueno (frequentemente presente na cola de sapateiro) envolvem danos hepáticos e orgânicos, mas a cirrose não é a complicação imediata ( aguda ) e fatal durante o ato. D) Síndrome de Wernicke é patologia alcoólica (carência de vitamina B1 crônica)."
+        }
+      },
+      "id": "q-10",
+      "number": 10,
+      "options": [
+        {
+          "label": "A",
+          "text": "Hemorragia alveolar difusa aguda."
+        },
+        {
+          "label": "B",
+          "text": "Asfixia mecânica por desmaio durante a inalação."
+        },
+        {
+          "label": "C",
+          "text": "Cirrose hepática fulminante induzida por tolueno."
+        },
+        {
+          "label": "D",
+          "text": "Síndrome de Wernicke-Korsakoff aguda."
+        }
+      ],
+      "prompt": "Crianças e adolescentes em situação de vulnerabilidade frequentemente utilizam solventes (como cola de sapateiro e tintas) devido ao seu caráter de droga lícita, de baixo custo e alta acessibilidade. Estes inalantes orgânicos são fortes depressores do SNC. Durante o uso dessa substância com um saco plástico no rosto, qual é o principal e mais imediato risco de morte aguda relatado nos materiais médicos?",
+      "takeHome": "O maior risco agudo e letal na inalação de solventes em sacos plásticos é a morte por asfixia (o usuário deprime o sensório, desmaia com o saco na face e para de respirar oxigênio).",
+      "topic": "Uso Abusivo de Solventes",
+      "type": "Conceito"
+    }
+  ],
+  "sourceName": "Documento sem título (52).pdf",
+  "title": "Bem-vindo! Como professor de medicina focado em raciocínio clínico e diagnóstico, estruturei este simulado para desafiar sua capacidade de aplicar o conhecimento teórico na prática médica diária, baseando-me estritamente nas aulas e materiais fornecidos.",
+  "version": 1
+}

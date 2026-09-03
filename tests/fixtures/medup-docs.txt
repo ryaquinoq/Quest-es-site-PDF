@@ -1,0 +1,52 @@
+Simulado de Clínica Médica
+
+Temas: Cardiologia e Infectologia
+Distribuição: 50% clínica, 50% conceito aplicado
+
+=== INICIO DA QUESTAO ===
+Numero: 1
+Tema: Hipertensão arterial
+Tipo: Clínica
+Dificuldade: Intermediária
+
+Enunciado:
+Uma mulher de 58 anos apresenta pressão arterial persistentemente elevada em consultas consecutivas. Qual medida confirma o diagnóstico fora do consultório?
+
+Alternativa A: Eletrocardiograma de repouso
+Alternativa B: Monitorização ambulatorial da pressão arterial
+Alternativa C: Radiografia de tórax
+Alternativa D: Dosagem isolada de troponina
+
+Resposta correta: B
+Justificativa A: O eletrocardiograma avalia repercussões cardíacas, mas não confirma a pressão fora do consultório.
+Justificativa B: A monitorização ambulatorial registra medidas ao longo do dia e ajuda a excluir o efeito do avental branco.
+Justificativa C: A radiografia não estabelece o diagnóstico pressórico.
+Justificativa D: A troponina investiga lesão miocárdica aguda.
+Take home message: Medidas fora do consultório aumentam a segurança diagnóstica da hipertensão.
+Ponto-chave: Confirmar elevação persistente da pressão reduz diagnósticos equivocados.
+Fonte no material: Aula de Hipertensão, seção Diagnóstico.
+=== FIM DA QUESTAO ===
+
+=== INICIO DA QUESTAO ===
+Numero: 2
+Tema: Pneumonia adquirida na comunidade
+Tipo: Conceito aplicado
+Dificuldade: Básica
+
+Enunciado:
+Qual achado clínico deve elevar a preocupação com gravidade em um adulto com pneumonia adquirida na comunidade?
+
+Alternativa A: Confusão mental nova
+Alternativa B: Coriza isolada
+Alternativa C: Prurido ocular
+Alternativa D: Soluços ocasionais
+
+Resposta correta: A
+Justificativa A: Confusão mental nova é sinal de disfunção orgânica e integra avaliações de gravidade.
+Justificativa B: Coriza isolada não indica gravidade da pneumonia.
+Justificativa C: Prurido ocular sugere condição alérgica e não gravidade pulmonar.
+Justificativa D: Soluços ocasionais não são marcador de gravidade.
+Take home message: Alteração aguda do estado mental exige avaliação rápida da gravidade.
+Ponto-chave: Procure sinais de disfunção orgânica na pneumonia.
+Fonte no material: Aula de Pneumonia, seção Estratificação.
+=== FIM DA QUESTAO ===
