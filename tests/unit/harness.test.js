@@ -2,7 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:net";
 import { spawn } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 test("test harness loads ES modules", () => {
   assert.equal(typeof structuredClone, "function");
@@ -55,6 +58,33 @@ test("static server serves repository files and rejects invalid paths", async (t
   assert.equal(traversalResponse.status, 403);
 });
 
+test("static server rejects traversal to a sibling with a common path prefix", async (t) => {
+  const sandbox = await mkdtemp(join(tmpdir(), "medup-server-"));
+  const root = join(sandbox, "site");
+  const sibling = join(sandbox, "site-private");
+  await mkdir(root);
+  await mkdir(sibling);
+  await writeFile(join(root, "index.html"), "MedUp");
+  await writeFile(join(sibling, "secret.txt"), "private");
+
+  const port = await availablePort();
+  const serveScript = fileURLToPath(new URL("../../scripts/serve.mjs", import.meta.url));
+  const child = spawn(process.execPath, [serveScript], {
+    cwd: root,
+    env: { ...process.env, PORT: String(port) },
+    stdio: "ignore",
+  });
+  t.after(async () => {
+    child.kill();
+    await rm(sandbox, { recursive: true, force: true });
+  });
+
+  const baseUrl = `http://127.0.0.1:${port}`;
+  await waitForServer(`${baseUrl}/`, child);
+  const response = await fetch(`${baseUrl}/..%2fsite-private%2fsecret.txt`);
+  assert.equal(response.status, 403);
+});
+
 test("fixture set preserves every import shape needed by later parser tests", async () => {
   const fixture = async (name) => readFile(`tests/fixtures/${name}`, "utf8");
   const [canonical, legacy, generic, malformed, sampleJson] = await Promise.all([
@@ -88,10 +118,19 @@ test("fixture set preserves every import shape needed by later parser tests", as
   assert.equal(sample.questions[0].feedback.correctOption, "B");
 });
 
+test("PDF.js dependency uses the patched release and its effective Node minimum", async () => {
+  const manifest = JSON.parse(await readFile("package.json", "utf8"));
+  const installed = JSON.parse(await readFile("node_modules/pdfjs-dist/package.json", "utf8"));
+
+  assert.equal(manifest.devDependencies["pdfjs-dist"], "6.3.289");
+  assert.equal(manifest.engines.node, ">=22.13.0");
+  assert.equal(installed.version, "6.3.289");
+});
+
 test("vendored PDF.js runtime matches the pinned dependency", async () => {
   for (const file of ["pdf.min.mjs", "pdf.worker.min.mjs"]) {
     const vendored = await readFile(`vendor/pdfjs/${file}`);
     const installed = await readFile(`node_modules/pdfjs-dist/build/${file}`);
-    assert.deepEqual(vendored, installed, `${file} must be copied from pdfjs-dist 5.6.205`);
+    assert.deepEqual(vendored, installed, `${file} must match the patched pdfjs-dist release`);
   }
 });

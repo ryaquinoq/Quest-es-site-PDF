@@ -6,7 +6,7 @@
 
 **Architecture:** Keep the production application framework-free and split behavior into browser ES modules with a canonical quiz schema. All input adapters feed one validation pipeline, and all study, editing, storage, and sharing features consume the same normalized model.
 
-**Tech Stack:** HTML5, CSS, browser ES modules, PDF.js 5.6.205 vendored locally, native CompressionStream/DecompressionStream, IndexedDB, Node.js 20+ test runner, Playwright 1.62.1.
+**Tech Stack:** HTML5, CSS, browser ES modules, PDF.js 6.3.289 vendored locally, native CompressionStream/DecompressionStream, IndexedDB, Node.js 22.13+ test runner, Playwright 1.62.1.
 
 **Spec:** `docs/superpowers/specs/2026-09-03-medup-import-share-redesign-design.md`
 
@@ -98,7 +98,7 @@
   "version": "2.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": { "node": ">=22.13.0" },
   "scripts": {
     "test": "node --test tests/unit/*.test.js",
     "test:e2e": "node --test tests/e2e/*.test.mjs",
@@ -106,7 +106,7 @@
     "vendor:pdfjs": "node scripts/vendor-pdfjs.mjs"
   },
   "devDependencies": {
-    "pdfjs-dist": "5.6.205",
+    "pdfjs-dist": "6.3.289",
     "playwright": "1.62.1"
   }
 }
@@ -134,17 +134,21 @@ Expected: one passing test and exit code 0.
 // scripts/serve.mjs
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
-import { extname, join, normalize } from "node:path";
+import { extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 
-const root = process.cwd();
+const root = resolve(process.cwd());
 const port = Number(process.env.PORT || 4173);
 const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".json": "application/json" };
 
 createServer(async (request, response) => {
   const pathname = decodeURIComponent(new URL(request.url, `http://${request.headers.host}`).pathname);
-  const relative = normalize(pathname === "/" ? "index.html" : pathname.slice(1));
-  const target = join(root, relative);
-  if (!target.startsWith(root)) { response.writeHead(403).end("Forbidden"); return; }
+  const requestedPath = pathname === "/" ? "index.html" : pathname.slice(1);
+  const target = resolve(root, requestedPath);
+  const relativeTarget = relative(root, target);
+  if (relativeTarget === ".." || relativeTarget.startsWith(`..${sep}`) || isAbsolute(relativeTarget)) {
+    response.writeHead(403).end("Forbidden");
+    return;
+  }
   try {
     const info = await stat(target);
     const file = info.isDirectory() ? join(target, "index.html") : target;
