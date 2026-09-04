@@ -52,7 +52,13 @@ function questionDiagnostic(question, rawQuestion, index) {
   }
 
   const sourceOptions = rawOptions(rawQuestion);
-  if (sourceOptions.some(option => String(option?.label || "") !== String(option?.label || "").toUpperCase())) {
+  if (sourceOptions.some(option => !String(option?.label || "").trim())) {
+    add("attention", "Rótulo ausente preenchido automaticamente.");
+  }
+  if (sourceOptions.some(option => {
+    const label = String(option?.label || "");
+    return label.trim() && label !== label.trim().toUpperCase();
+  })) {
     add("attention", "Rótulos das alternativas convertidos para maiúsculas.");
   }
 

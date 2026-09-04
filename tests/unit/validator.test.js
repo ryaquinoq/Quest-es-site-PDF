@@ -108,3 +108,25 @@ test("validator preserves question-level recovery when another question is block
   assert.equal(result.quiz.questions.length, 2);
   assert.deepEqual(result.diagnostics.map(({ status }) => status), ["ready", "blocked"]);
 });
+
+test("validator preserves a null question and returns a blocked diagnostic", () => {
+  const result = validateQuiz({ questions: [null] });
+
+  assert.equal(result.quiz.questions.length, 1);
+  assert.equal(result.status, "blocked");
+  assert.equal(result.diagnostics.length, 1);
+  assert.equal(result.diagnostics[0].status, "blocked");
+});
+
+test("validator reports attention when an option label is filled automatically", () => {
+  const result = validateQuiz({
+    questions: [completeQuestion({
+      options: [{ text: "Conduta um" }, { label: "B", text: "Conduta dois" }]
+    })]
+  });
+
+  assert.equal(result.quiz.questions[0].options[0].label, "A");
+  assert.equal(result.status, "attention");
+  assert.equal(result.diagnostics[0].status, "attention");
+  assert.ok(result.diagnostics[0].messages.some(message => /rótulo.*preenchido/i.test(message)));
+});

@@ -6,40 +6,57 @@ function toList(value) {
   return Array.isArray(value) ? [...value] : [];
 }
 
+function normalizeLabel(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
+function feedbackByLabel(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value).map(([label, feedback]) => [normalizeLabel(label), feedback])
+  );
+}
+
 export function createQuestion(input = {}, index = 0) {
-  const rawOptions = Array.isArray(input.options)
-    ? input.options
-    : Object.entries(input.options || {}).map(([label, text]) => ({ label, text }));
-  const options = rawOptions.map((option = {}, optionIndex) => ({
-    label: String(option.label || OPTION_LABELS[optionIndex] || "").toUpperCase(),
-    text: String(option.text || "").trim()
-  }));
-  const number = Number(input.number || index + 1);
+  const source = input && typeof input === "object" ? input : {};
+  const rawOptions = Array.isArray(source.options)
+    ? source.options
+    : Object.entries(source.options || {}).map(([label, text]) => ({ label, text }));
+  const options = rawOptions.map((option = {}, optionIndex) => {
+    const label = normalizeLabel(option.label);
+    return {
+      label: label || OPTION_LABELS[optionIndex] || "",
+      text: String(option.text || "").trim()
+    };
+  });
+  const number = Number(source.number || index + 1);
   const correctOption = String(
-    input.correctOption || input.feedback?.correctOption || ""
-  ).toUpperCase();
+    source.correctOption || source.feedback?.correctOption || ""
+  ).trim().toUpperCase();
+  const directFeedback = feedbackByLabel(source.feedback);
+  const optionFeedback = feedbackByLabel(source.feedback?.optionFeedback);
 
   return {
-    id: String(input.id || `q-${number}`),
+    id: String(source.id || `q-${number}`),
     number,
-    topic: String(input.topic || "Sem tema").trim(),
-    type: String(input.type || "Clínica").trim(),
-    difficulty: String(input.difficulty || "Não informada").trim(),
-    prompt: String(input.prompt || "").trim(),
+    topic: String(source.topic || "Sem tema").trim(),
+    type: String(source.type || "Clínica").trim(),
+    difficulty: String(source.difficulty || "Não informada").trim(),
+    prompt: String(source.prompt || "").trim(),
     options,
     correctOption,
     feedback: Object.fromEntries(options.map(({ label }) => [
       label,
       String(
-        input.feedback?.[label] ||
-        input.feedback?.optionFeedback?.[label] ||
-        (label === correctOption ? input.feedback?.correctReason : "") ||
+        directFeedback[label] ||
+        optionFeedback[label] ||
+        (label === correctOption ? source.feedback?.correctReason : "") ||
         ""
       ).trim()
     ])),
-    takeHome: String(input.takeHome || "").trim(),
-    keyPoint: String(input.keyPoint || input.feedback?.keyPoint || "").trim(),
-    sourceReference: String(input.sourceReference || "").trim()
+    takeHome: String(source.takeHome || "").trim(),
+    keyPoint: String(source.keyPoint || source.feedback?.keyPoint || "").trim(),
+    sourceReference: String(source.sourceReference || "").trim()
   };
 }
 

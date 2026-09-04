@@ -52,6 +52,25 @@ test("createQuestion normalizes array options and legacy answer feedback", () =>
   assert.equal(question.keyPoint, "Revisar");
 });
 
+test("createQuestion trims labels and answer before matching feedback keys case-insensitively", () => {
+  const question = createQuestion({
+    prompt: "Caso clínico",
+    options: [{ label: " a ", text: "Um" }, { label: " b ", text: "Dois" }],
+    correctOption: " b ",
+    feedback: {
+      a: "Alternativa incorreta",
+      optionFeedback: { b: "Alternativa correta" }
+    }
+  });
+
+  assert.deepEqual(question.options.map(({ label }) => label), ["A", "B"]);
+  assert.equal(question.correctOption, "B");
+  assert.deepEqual(question.feedback, {
+    A: "Alternativa incorreta",
+    B: "Alternativa correta"
+  });
+});
+
 test("migrateQuiz converts legacy metadata and feedback", () => {
   const legacy = {
     metadata: { title: "Teste", intro: "Introdução", themes: ["Clínica"] },
