@@ -34,7 +34,7 @@ export function normalizeSource(text, options = {}) {
     .replace(FIELD_LABEL, "$1: ")
     .replace(/^([A-E])\s*\.\s*/gim, "$1. ")
     .replace(/^([A-E])\s*\)\s*/gim, "$1) ")
-    .replace(/^([A-E])\s*[-\u2013\u2014]\s*/gim, "$1 - ")
+    .replace(/^([A-E])[ \t]*[-\u2013\u2014][ \t]*/gim, "$1 - ")
     .replace(/\n{3,}/g, "\n\n")
     .replace(/^ +| +$/gm, "")
     .trim();

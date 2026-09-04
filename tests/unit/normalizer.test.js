@@ -48,6 +48,12 @@ test("normalizes en and em dashes only in option label position", () => {
   );
 });
 
+test("preserves a dash continuation on the line after a standalone letter", () => {
+  const input = "A\n— Continuação";
+
+  assert.equal(normalizeSource(input), input);
+});
+
 test("collapses excessive blank lines and preserves page boundaries with a token", () => {
   const input = "Página 1\n\n\n\n\fPágina 2";
 
