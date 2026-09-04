@@ -40,6 +40,15 @@ test("recognizes a generic numbered question with inline prompt text", () => {
   assert.equal(result.format, "generic");
 });
 
+test("does not classify an isolated number or year as generic", () => {
+  for (const source of ["7", "2024"]) {
+    const result = detectFormat(source);
+
+    assert.equal(result.format, "unknown");
+    assert.ok(result.confidence < 0.45);
+  }
+});
+
 test("returns unknown below the confidence threshold", () => {
   const result = detectFormat("Resumo livre sem questões estruturadas.");
 

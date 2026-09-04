@@ -1,12 +1,12 @@
 const UNICODE_SPACES = /[\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000]/g;
 
 const WRAPPED_LABELS = [
-  [/^(Alternativa|Justificativa)\n([A-E]):/gim, "$1 $2:"],
-  [/^Resposta\ncorreta:/gim, "Resposta correta:"],
-  [/^Take home\nmessage:/gim, "Take home message:"],
-  [/^Ponto-?\nchave:/gim, "Ponto-chave:"],
-  [/^Fonte no\nmaterial:/gim, "Fonte no material:"],
-  [/^(N[uú]mero|Tema|Tipo|Dificuldade|Enunciado)\n:/gim, "$1:"],
+  [/^(Alternativa|Justificativa)(?: |\n)([A-E])\n?:/gim, "$1 $2:"],
+  [/^Resposta(?: |\n)correta\n?:/gim, "Resposta correta:"],
+  [/^Take(?: |\n)home(?: |\n)message\n?:/gim, "Take home message:"],
+  [/^Ponto(?:-| |\n|-\n)chave\n?:/gim, "Ponto-chave:"],
+  [/^Fonte(?: |\n)no(?: |\n)material\n?:/gim, "Fonte no material:"],
+  [/^(N[uú]mero|Tema|Tipo|Dificuldade|Enunciado)\n?:/gim, "$1:"],
 ];
 
 const FIELD_LABEL = /^(N[uú]mero|Tema|Tipo|Dificuldade|Enunciado|Alternativa [A-E]|Resposta correta|Justificativa [A-E]|Take home message|Ponto-chave|Fonte no material) *: */gim;
@@ -34,7 +34,7 @@ export function normalizeSource(text, options = {}) {
     .replace(FIELD_LABEL, "$1: ")
     .replace(/^([A-E])\s*\.\s*/gim, "$1. ")
     .replace(/^([A-E])\s*\)\s*/gim, "$1) ")
-    .replace(/^([A-E])\s*-\s*/gim, "$1 - ")
+    .replace(/^([A-E])\s*[-\u2013\u2014]\s*/gim, "$1 - ")
     .replace(/\n{3,}/g, "\n\n")
     .replace(/^ +| +$/gm, "")
     .trim();

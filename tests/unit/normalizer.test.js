@@ -24,6 +24,30 @@ test("joins only recognized wrapped labels and leaves prose lines separate", () 
   );
 });
 
+test("joins known labels broken internally or immediately before a colon", () => {
+  const input = "Resposta correta\n: B\nFonte\nno material: Aula\nTake home\nmessage\n: Revisar";
+
+  assert.equal(
+    normalizeSource(input),
+    "Resposta correta: B\nFonte no material: Aula\nTake home message: Revisar",
+  );
+});
+
+test("does not join labels across blank lines or values after a colon", () => {
+  const input = "Fonte\n\nno material: Aula\n\nEnunciado:\nCaso clínico";
+
+  assert.equal(normalizeSource(input), input);
+});
+
+test("normalizes en and em dashes only in option label position", () => {
+  const input = "A – Primeira\nB—Segunda\nQuestão 1 — Tema\nTexto – contexto";
+
+  assert.equal(
+    normalizeSource(input),
+    "A - Primeira\nB - Segunda\nQuestão 1 — Tema\nTexto – contexto",
+  );
+});
+
 test("collapses excessive blank lines and preserves page boundaries with a token", () => {
   const input = "Página 1\n\n\n\n\fPágina 2";
 

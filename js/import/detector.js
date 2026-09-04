@@ -62,7 +62,7 @@ export function detectFormat(text) {
   let genericConfidence = 0;
   const genericReasons = [];
   if (numberedQuestions) {
-    genericConfidence += numberedQuestions > 1 ? 0.55 : 0.45;
+    genericConfidence += numberedQuestions > 1 ? 0.55 : 0.3;
     genericReasons.push("perguntas numeradas encontradas");
   }
   if (optionLabels >= 2) {
