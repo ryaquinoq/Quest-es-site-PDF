@@ -1,6 +1,9 @@
 import { migrateQuiz } from "./js/core/quiz-schema.js";
+import { decodeQuizFragment } from "./js/share/codec.js";
 import { createStore } from "./js/ui/state.js";
 import { renderImportView } from "./js/ui/views/import-view.js";
+import { renderShareView } from "./js/ui/views/share-view.js";
+import { renderStudyView } from "./js/ui/views/study-view.js";
 
 const ROUTE_TO_TAB = {
   import: "import",
@@ -23,14 +26,16 @@ function unreadableSharedLinkState() {
   };
 }
 
-function hydrateSharedLinkState() {
+async function hydrateSharedLinkState() {
   const fragment = new URLSearchParams(window.location.hash.slice(1));
   const payload = fragment.get("quiz");
   if (!payload) return null;
 
   try {
-    if (payload.startsWith("v2.")) return unreadableSharedLinkState();
-    return { activeQuiz: parseQuiz(payload), route: "study" };
+    const quiz = payload.startsWith("v2.")
+      ? migrateQuiz(await decodeQuizFragment(`#quiz=${payload}`))
+      : parseQuiz(payload);
+    return { activeQuiz: quiz, route: "study", readOnly: true };
   } catch {
     return unreadableSharedLinkState();
   }
@@ -52,66 +57,9 @@ function hydrateLocalLibraryState() {
   }
 }
 
-function initialState() {
-  const sharedState = hydrateSharedLinkState();
+async function initialState() {
+  const sharedState = await hydrateSharedLinkState();
   return sharedState || hydrateLocalLibraryState();
-}
-
-function renderStudyView(store) {
-  const state = store.getState();
-  const quiz = state.activeQuiz;
-  const placeholder = document.querySelector("#simulado-placeholder");
-  const view = document.querySelector("#simulado-view");
-  const stage = document.querySelector("#question-stage");
-  const sidebar = document.querySelector("#sidebar-nav");
-  const stats = document.querySelector("#stats-header");
-
-  placeholder.style.display = quiz?.questions.length ? "none" : "flex";
-  view.style.display = quiz?.questions.length ? "grid" : "none";
-  if (!quiz?.questions.length) return;
-
-  const selectedIndex = Math.min(state.selectedQuestion, quiz.questions.length - 1);
-  const question = quiz.questions[selectedIndex];
-  stage.replaceChildren();
-  stage.dataset.studyQuestion = question.id;
-
-  const heading = document.createElement("h2");
-  heading.className = "question-title";
-  heading.textContent = `Questão ${question.number}`;
-  const topic = document.createElement("p");
-  topic.className = "question-kicker";
-  topic.textContent = question.topic;
-  const prompt = document.createElement("p");
-  prompt.className = "question-prompt";
-  prompt.textContent = question.prompt;
-  const options = document.createElement("div");
-  options.className = "options-list";
-
-  for (const option of question.options) {
-    const button = document.createElement("button");
-    button.className = "option-item";
-    button.type = "button";
-    button.textContent = `${option.label}) ${option.text}`;
-    button.addEventListener("click", () => {
-      store.setState(current => ({
-        answers: { ...current.answers, [question.id]: option.label }
-      }));
-    });
-    options.append(button);
-  }
-  stage.append(topic, heading, prompt, options);
-
-  sidebar.replaceChildren(...quiz.questions.map((item, index) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = `nav-quest-btn${index === selectedIndex ? " active" : ""}`;
-    button.textContent = `Questão ${item.number}`;
-    button.addEventListener("click", () => store.setState({ selectedQuestion: index }));
-    return button;
-  }));
-
-  const answered = Object.keys(state.answers).length;
-  stats.textContent = `${quiz.questions.length} questões · ${answered} respondidas`;
 }
 
 function renderApp(store) {
@@ -120,6 +68,7 @@ function renderApp(store) {
 
   for (const tab of document.querySelectorAll("[data-tab]")) {
     tab.classList.toggle("active", tab.dataset.tab === activeTab);
+    tab.disabled = Boolean(state.readOnly && tab.dataset.tab === "editor");
   }
   for (const section of document.querySelectorAll(".tab-content")) {
     section.classList.toggle("active", section.id === `${activeTab}-tab`);
@@ -134,12 +83,22 @@ function renderApp(store) {
     renderImportView(document.querySelector("#import-tab"), store);
   }
   if (state.route === "study") renderStudyView(store);
+  if (state.route === "share") {
+    void renderShareView(document.querySelector("#exportar-tab"), store);
+  }
 }
 
-function start() {
-  const store = createStore(initialState());
+async function start() {
+  const store = createStore(await initialState());
 
   const switchRoute = route => {
+    if (route === "editor" && store.getState().readOnly) {
+      store.setState({
+        route: "study",
+        notice: { type: "info", message: "Links compartilhados abrem somente para estudo." }
+      });
+      return;
+    }
     if (route !== "import" && !store.getState().activeQuiz) {
       store.setState({
         route: "import",
@@ -168,4 +127,4 @@ function start() {
   renderApp(store);
 }
 
-start();
+void start();
