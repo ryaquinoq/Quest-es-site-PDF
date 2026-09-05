@@ -34,11 +34,15 @@ export function storageError(error) {
 }
 
 function normalizeQuiz(input) {
-  const quiz = migrateQuiz(input);
-  if (input?.progress && typeof input.progress === "object") {
-    quiz.progress = clone(input.progress);
+  return migrateQuiz(input);
+}
+
+function legacyQuizId(serialized) {
+  let hash = 2166136261;
+  for (let index = 0; index < serialized.length; index += 1) {
+    hash = Math.imul(hash ^ serialized.charCodeAt(index), 16777619);
   }
-  return quiz;
+  return `legacy-${(hash >>> 0).toString(16).padStart(8, "0")}`;
 }
 
 async function repositoryCall(operation) {
@@ -78,11 +82,21 @@ function requestResult(request) {
   });
 }
 
-function transactionDone(transaction) {
+function transactionResult(transaction, request) {
   return new Promise((resolve, reject) => {
-    transaction.addEventListener("complete", resolve, { once: true });
-    transaction.addEventListener("abort", () => reject(transaction.error), { once: true });
-    transaction.addEventListener("error", () => reject(transaction.error), { once: true });
+    let result;
+    const fail = event => reject(
+      transaction.error ||
+      request.error ||
+      event?.target?.error ||
+      event?.error ||
+      new Error("IndexedDB transaction failed")
+    );
+    request.addEventListener("success", () => { result = request.result; }, { once: true });
+    request.addEventListener("error", fail, { once: true });
+    transaction.addEventListener("complete", () => resolve(result), { once: true });
+    transaction.addEventListener("abort", fail, { once: true });
+    transaction.addEventListener("error", fail, { once: true });
   });
 }
 
@@ -114,6 +128,9 @@ export function indexedDbAdapter(indexedDB = globalThis.indexedDB) {
         new Error("IndexedDB upgrade blocked"),
         { name: "InvalidStateError" }
       )), { once: true });
+    }).catch(error => {
+      databasePromise = undefined;
+      throw error;
     });
     return databasePromise;
   };
@@ -122,32 +139,29 @@ export function indexedDbAdapter(indexedDB = globalThis.indexedDB) {
     async list() {
       const db = await database();
       const transaction = db.transaction(QUIZ_STORE, "readonly");
-      const done = transactionDone(transaction);
       const index = transaction.objectStore(QUIZ_STORE).index("updatedAt");
-      const result = await requestResult(index.getAll());
-      await done;
+      const result = await transactionResult(transaction, index.getAll());
       return result.reverse().map(clone);
     },
     async get(id) {
       const db = await database();
       const transaction = db.transaction(QUIZ_STORE, "readonly");
-      const done = transactionDone(transaction);
-      const result = await requestResult(transaction.objectStore(QUIZ_STORE).get(id));
-      await done;
+      const request = transaction.objectStore(QUIZ_STORE).get(id);
+      const result = await transactionResult(transaction, request);
       return clone(result || null);
     },
     async put(quiz) {
       const db = await database();
       const transaction = db.transaction(QUIZ_STORE, "readwrite");
-      transaction.objectStore(QUIZ_STORE).put(clone(quiz));
-      await transactionDone(transaction);
+      const request = transaction.objectStore(QUIZ_STORE).put(clone(quiz));
+      await transactionResult(transaction, request);
       return clone(quiz);
     },
     async remove(id) {
       const db = await database();
       const transaction = db.transaction(QUIZ_STORE, "readwrite");
-      transaction.objectStore(QUIZ_STORE).delete(id);
-      await transactionDone(transaction);
+      const request = transaction.objectStore(QUIZ_STORE).delete(id);
+      await transactionResult(transaction, request);
     }
   };
 }
@@ -196,12 +210,15 @@ export function createQuizLibrary(adapter = indexedDbAdapter()) {
       if (!serialized) return null;
 
       const parsed = JSON.parse(serialized);
-      const imported = await this.put(parsed.quiz || parsed);
+      const source = parsed?.quiz || parsed || {};
+      const candidate = {
+        ...source,
+        id: source.id || legacyQuizId(serialized)
+      };
+      const imported = await this.get(candidate.id) || await this.put(candidate);
       try {
         localStorage.removeItem(LEGACY_QUIZ_KEY);
-      } catch (error) {
-        throw storageError(error);
-      }
+      } catch {}
       return imported;
     }
   };

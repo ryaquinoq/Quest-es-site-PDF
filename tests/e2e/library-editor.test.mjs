@@ -90,9 +90,11 @@ test("persists imported quizzes and canonical editor changes across reloads", as
 
   await page.reload();
   await page.getByRole("heading", { name: "Biblioteca" }).waitFor();
-  await page.locator('[data-library-quiz="Simulado de Clínica Médica"]')
-    .getByRole("button", { name: "Editar" }).click();
+  const persistedRow = page.locator('[data-library-quiz="Simulado de Clínica Médica"]');
+  assert.match(await persistedRow.textContent(), /2 questões/i);
+  await persistedRow.getByRole("button", { name: "Editar" }).click();
   await page.getByRole("heading", { name: "Editar simulado" }).waitFor();
+  assert.equal(await page.locator("[data-editor-question]").count(), 2);
   assert.equal(await page.getByLabel("Enunciado da questão").inputValue(), changedPrompt);
 });
 

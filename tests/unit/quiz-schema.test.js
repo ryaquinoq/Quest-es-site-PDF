@@ -26,6 +26,37 @@ test("createQuiz assigns stable canonical defaults", () => {
   assert.equal(quiz.questions[0].number, 1);
   assert.equal(quiz.questions[0].options[1].label, "B");
   assert.equal(quiz.questions[0].feedback.B, "");
+  assert.deepEqual(quiz.progress, {
+    answers: {},
+    answered: 0,
+    correct: 0,
+    finalized: false,
+    selectedQuestion: 0
+  });
+});
+
+test("createQuiz preserves normalized study progress", () => {
+  const quiz = createQuiz({
+    questions: [
+      { id: "q-1", options: { A: "Um", B: "Dois" }, correctOption: "A" },
+      { id: "q-2", options: { A: "Um", B: "Dois" }, correctOption: "B" }
+    ],
+    progress: {
+      answers: { "q-1": "a", "q-2": "X", missing: "B" },
+      answered: 99,
+      correct: 99,
+      finalized: true,
+      selectedQuestion: 12
+    }
+  });
+
+  assert.deepEqual(quiz.progress, {
+    answers: { "q-1": "A" },
+    answered: 1,
+    correct: 1,
+    finalized: true,
+    selectedQuestion: 1
+  });
 });
 
 test("createQuestion normalizes array options and legacy answer feedback", () => {

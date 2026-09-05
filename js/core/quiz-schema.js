@@ -17,6 +17,45 @@ function feedbackByLabel(value) {
   );
 }
 
+function boundedInteger(value, minimum, maximum) {
+  const number = Number.isFinite(Number(value)) ? Math.trunc(Number(value)) : minimum;
+  return Math.min(Math.max(number, minimum), maximum);
+}
+
+export function createProgress(input = {}, questions = []) {
+  const source = input && typeof input === "object" ? input : {};
+  const rawAnswers = source.answers && typeof source.answers === "object"
+    ? source.answers
+    : {};
+  const answers = {};
+
+  for (const question of questions) {
+    const answer = normalizeLabel(rawAnswers[question.id]);
+    if (question.options.some(option => option.label === answer)) {
+      answers[question.id] = answer;
+    }
+  }
+
+  const answerEntries = Object.entries(answers);
+  const hasAnswerMap = Object.keys(rawAnswers).length > 0;
+  const answered = hasAnswerMap
+    ? answerEntries.length
+    : boundedInteger(source.answered, 0, questions.length);
+  const correct = hasAnswerMap
+    ? answerEntries.filter(([id, answer]) => (
+      questions.find(question => question.id === id)?.correctOption === answer
+    )).length
+    : boundedInteger(source.correct, 0, answered);
+
+  return {
+    answers,
+    answered,
+    correct,
+    finalized: Boolean(source.finalized),
+    selectedQuestion: boundedInteger(source.selectedQuestion, 0, Math.max(questions.length - 1, 0))
+  };
+}
+
 export function ensureUniqueQuestionIds(questions = []) {
   const usedIds = new Set();
 
@@ -94,7 +133,8 @@ export function createQuiz(input = {}) {
     introduction: String(input.introduction || input.metadata?.intro || "").trim(),
     themes: toList(input.themes || input.metadata?.themes),
     distribution: toList(input.distribution || input.metadata?.distribution),
-    questions
+    questions,
+    progress: createProgress(input.progress, questions)
   };
 }
 
