@@ -17,7 +17,7 @@ COBERTURA E PROPORÇÕES
 
 - Distribua de 70% a 80% das questões como vinhetas clínicas realistas, focadas em interpretação, decisão, priorização, diagnóstico, conduta ou aplicação ao caso.
 - Distribua de 20% a 30% como conceitos aplicados, evitando simples reprodução de frases e memorização isolada quando houver base para cobrar compreensão.
-- Para quantidades pequenas, use os números inteiros mais próximos que preservem o total de [N] questões e priorize vinhetas clínicas quando não for possível cumprir exatamente as duas faixas.
+- Para quantidades pequenas, use os números inteiros mais próximos que preservem o total efetivamente gerado e priorize vinhetas clínicas quando não for possível cumprir exatamente as duas faixas.
 - Cubra os temas proporcionalmente à relevância e à densidade do conteúdo nas fontes, sem concentrar questões repetitivas em um único detalhe.
 - Varie o foco cognitivo e não reutilize o mesmo caso, fato central ou objetivo de aprendizagem com redação diferente.
 - Classifique cada questão como Tipo: Clínica ou Tipo: Conceito aplicado.
@@ -34,7 +34,7 @@ QUALIDADE DAS QUESTÕES
 
 BALANCEAMENTO DAS RESPOSTAS
 
-- Distribua as posições corretas A, B, C e D de forma equilibrada no conjunto, com diferença máxima de uma ocorrência quando [N] não for múltiplo de quatro.
+- Distribua as posições corretas A, B, C e D de forma equilibrada no conjunto, com diferença máxima de uma ocorrência quando a quantidade efetivamente gerada não for múltiplo de quatro.
 - Embaralhe as posições sem sequência visível e sem padrão previsível, como A-B-C-D repetido, alternância regular ou longas séries da mesma letra.
 - Faça o balanceamento somente depois de validar o conteúdo; nunca altere qual alternativa está correta apenas para cumprir a distribuição.
 
@@ -50,7 +50,8 @@ FEEDBACK PEDAGÓGICO
 TRATAMENTO DE MATERIAL INSUFICIENTE
 
 - Se um tópico ou detalhe não tiver suporte suficiente, não gere questões sobre ele e não tente preencher a lacuna.
-- Se o material fornecido for insuficiente para gerar [N] questões distintas e válidas, gere somente a quantidade sustentada e acrescente à síntese inicial: “Insuficiência: solicitadas [N]; geradas [X]. Motivo: [lacuna objetiva nos materiais].”
+- Se o material fornecido for insuficiente para gerar [N] questões distintas e válidas, gere somente a quantidade sustentada e acrescente à síntese inicial: “Insuficiência: solicitadas [N]; geradas [QTD_GERADA]. Motivo: [lacuna objetiva nos materiais].”
+- Em caso de insuficiência parcial, recalcule as proporções, os percentuais informados e o balanceamento das respostas sobre [QTD_GERADA], não sobre [N].
 - Se o material fornecido é insuficiente para gerar qualquer questão válida, não gere questões. Responda somente com estas três linhas, que substituem todo o formato normal:
 MATERIAL INSUFICIENTE
 Motivo: [explique objetivamente o que falta]
@@ -71,7 +72,7 @@ FORMATO OBRIGATÓRIO DA SAÍDA
 
 Simulado de [tema ou conjunto de temas]
 Temas: [temas principais separados por vírgula]
-Distribuição: [X]% clínica, [Y]% conceito aplicado
+Distribuição: [PCT_CLINICA]% clínica, [PCT_CONCEITO]% conceito aplicado
 
 === INICIO DA QUESTAO ===
 Numero: [número sequencial]

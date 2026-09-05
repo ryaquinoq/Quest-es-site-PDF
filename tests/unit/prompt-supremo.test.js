@@ -73,6 +73,23 @@ test("Prompt Supremo specifies the complete medical question-generation contract
   assert.match(prompt, /nenhum conteúdo fora/iu);
 });
 
+test("Prompt Supremo uses unambiguous placeholders for partial output and distribution", async () => {
+  const prompt = await readPromptDocument();
+
+  assert.doesNotMatch(prompt, /\[X\]/u);
+  assert.match(prompt, /geradas \[QTD_GERADA\]/u);
+  assert.match(prompt, /Distribuição: \[PCT_CLINICA\]% clínica, \[PCT_CONCEITO\]% conceito aplicado/u);
+});
+
+test("Prompt Supremo recalculates partial-output constraints over QTD_GERADA instead of N", async () => {
+  const prompt = await readPromptDocument();
+
+  assert.match(
+    prompt,
+    /insuficiência parcial[^\n]*proporções[^\n]*percentuais informados[^\n]*balanceamento das respostas[^\n]*\[QTD_GERADA\][^\n]*não (?:sobre|em relação a) \[N\]/iu
+  );
+});
+
 test("exported PROMPT_SUPREMO is byte-for-byte equivalent to the copy-ready block", async () => {
   const document = await readPromptDocument();
   const { PROMPT_SUPREMO } = await import("../../js/prompt-supremo.js");
