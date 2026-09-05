@@ -1,0 +1,40 @@
+=== INICIO DA QUESTAO ===
+Numero: 1
+Tema: Hipertensão arterial
+Tipo: Clínica
+Dificuldade: Intermediária
+Enunciado:
+Qual método confirma a pressão arterial fora do consultório?
+Alternativa A: MAPA
+Alternativa B: Eletrocardiograma
+Alternativa C: Radiografia
+Alternativa D: Troponina
+Resposta correta: A
+Justificativa A: Registra medidas repetidas fora do consultório.
+Justificativa B: Não confirma o padrão pressórico.
+Justificativa C: Não confirma o padrão pressórico.
+Justificativa D: Avalia lesão miocárdica.
+Take home message: Confirme a pressão com medidas externas.
+Ponto-chave: Evite o diagnóstico por uma medida isolada.
+Fonte no material: Aula de Hipertensão.
+=== FIM DA QUESTAO ===
+
+=== INICIO DA QUESTAO ===
+Numero: 2
+Tema: Pneumonia adquirida na comunidade
+Tipo: Clínica
+Dificuldade: Básica
+Enunciado:
+Qual achado sugere maior gravidade em pneumonia?
+Alternativa A: Coriza
+Alternativa B: Confusão mental nova
+Alternativa C: Prurido ocular
+Alternativa D: Soluços
+Justificativa A: Não indica gravidade.
+Justificativa B: Pode indicar disfunção orgânica.
+Justificativa C: Não indica gravidade.
+Justificativa D: Não indica gravidade.
+Take home message: Avalie sinais de disfunção orgânica.
+Ponto-chave: O gabarito foi omitido de propósito neste fixture.
+Fonte no material: Aula de Pneumonia.
+=== FIM DA QUESTAO ===

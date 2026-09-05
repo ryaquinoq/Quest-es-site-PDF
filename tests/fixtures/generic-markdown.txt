@@ -1,0 +1,23 @@
+# Questões de revisão
+
+## Questão 1
+Qual método registra a pressão arterial durante as atividades habituais?
+
+A. MAPA
+B. Eletrocardiograma
+C. Espirometria
+D. Radiografia
+
+Resposta: A
+Explicação: A MAPA registra medidas repetidas fora do consultório.
+
+## Questão 2
+Qual achado sugere maior gravidade em pneumonia?
+
+A - Espirros ocasionais
+B - Prurido ocular
+C - Confusão mental nova
+D - Soluços
+
+Gabarito: C
+Explicação: Alteração aguda do estado mental pode indicar disfunção orgânica.
