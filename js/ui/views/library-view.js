@@ -78,7 +78,7 @@ export function renderLibraryView(container, store, library) {
 
   container.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap">
-      <div><h2>Biblioteca</h2><p>Simulados salvos neste navegador.</p></div>
+      <div><h2>Seus simulados</h2><p>Simulados salvos neste navegador.</p></div>
       <button class="btn btn-primary" type="button" id="library-import">Importar questões</button>
     </div>
     ${items || '<div class="glass-card"><h3>Nenhum simulado salvo</h3><p>Importe questões para criar sua biblioteca local.</p></div>'}
@@ -105,8 +105,9 @@ export function renderLibraryView(container, store, library) {
           store.setState({
             activeQuiz: quiz,
             route: action === "edit" ? "editor" : "study",
-            selectedQuestion: 0,
-            answers: {},
+            selectedQuestion: quiz.progress?.selectedQuestion || 0,
+            answers: { ...(quiz.progress?.answers || {}) },
+            finalized: Boolean(quiz.progress?.finalized),
             readOnly: false,
             notice: null
           });

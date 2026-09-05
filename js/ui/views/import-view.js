@@ -1,5 +1,6 @@
 import { extractPdf } from "../../import/pdf.js";
 import { importQuiz } from "../../import/pipeline.js";
+import { PROMPT_SUPREMO } from "../../prompt-supremo.js";
 
 const ACCEPTED_EXTENSIONS = new Set(["pdf", "txt", "md", "json"]);
 const STATUS_LABELS = {
@@ -22,6 +23,16 @@ function updateDraft(store, patch) {
   store.setState(state => ({
     importDraft: { ...state.importDraft, ...patch }
   }));
+}
+
+function downloadPrompt() {
+  const content = `# Prompt Supremo MedUp\n\n\`\`\`text\n${PROMPT_SUPREMO}\n\`\`\`\n`;
+  const url = URL.createObjectURL(new Blob([content], { type: "text/markdown;charset=utf-8" }));
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "PROMPT-SUPREMO-MEDUP.md";
+  anchor.click();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 function questionId(result, index) {
@@ -232,9 +243,12 @@ export function renderImportView(container, store, library) {
   const progress = importDraft.progress;
 
   container.innerHTML = `
-    <div class="glass-card">
-      <h2>Importar questões</h2>
-      <p>O conteúdo é processado localmente neste navegador.</p>
+    <div class="import-intro">
+      <div><p class="section-kicker">Fluxo NotebookLM + Google Docs</p><h2>Transforme material médico em estudo ativo</h2>
+      <p>Importe PDF, texto, Markdown ou JSON. Todo o processamento acontece localmente.</p></div>
+      <button class="btn btn-secondary" type="button" id="open-prompt">Abrir Prompt Supremo</button>
+    </div>
+    <div class="glass-card import-panel">
       <div class="dropzone-container" style="margin-top: 20px;">
         <div class="upload-box" id="dropzone" tabindex="0" role="button">
           <input
@@ -266,11 +280,27 @@ export function renderImportView(container, store, library) {
       ${importDraft.error ? `<p role="alert">${escapeHtml(importDraft.error)}</p>` : ""}
     </div>
     ${renderReview(importResult, importDraft.excludedQuestionIds)}
+    <dialog class="prompt-dialog" id="prompt-dialog" aria-labelledby="prompt-dialog-title">
+      <div class="dialog-header"><div><p class="section-kicker">NotebookLM</p><h2 id="prompt-dialog-title">Prompt Supremo MedUp</h2></div><button class="icon-button" type="button" data-close-prompt aria-label="Fechar">×</button></div>
+      <pre class="prompt-content">${escapeHtml(PROMPT_SUPREMO)}</pre>
+      <div class="dialog-actions"><span id="prompt-status" role="status" aria-live="polite"></span><button class="btn btn-secondary" type="button" id="download-prompt">Baixar .md</button><button class="btn btn-primary" type="button" id="copy-prompt">Copiar prompt</button></div>
+    </dialog>
   `;
 
   const fileInput = container.querySelector("#file-input");
   const dropzone = container.querySelector("#dropzone");
   const chooseFile = fileLoaderFor(store);
+  const promptTrigger = container.querySelector("#open-prompt");
+  const promptDialog = container.querySelector("#prompt-dialog");
+
+  promptTrigger.addEventListener("click", () => promptDialog.showModal());
+  promptDialog.querySelector("[data-close-prompt]").addEventListener("click", () => promptDialog.close());
+  promptDialog.addEventListener("close", () => promptTrigger.focus());
+  promptDialog.querySelector("#copy-prompt").addEventListener("click", async () => {
+    await navigator.clipboard.writeText(PROMPT_SUPREMO);
+    promptDialog.querySelector("#prompt-status").textContent = "Prompt copiado.";
+  });
+  promptDialog.querySelector("#download-prompt").addEventListener("click", downloadPrompt);
 
   dropzone.addEventListener("click", () => fileInput.click());
   dropzone.addEventListener("keydown", event => {
