@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createServer } from "node:net";
 import { spawn } from "node:child_process";
+import { once } from "node:events";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -75,7 +76,15 @@ test("static server rejects traversal to a sibling with a common path prefix", a
     stdio: "ignore",
   });
   t.after(async () => {
-    child.kill();
+    if (child.exitCode === null) {
+      const exited = once(child, "exit", { signal: AbortSignal.timeout(5_000) });
+      child.kill();
+      await exited;
+    }
+    assert.ok(
+      child.exitCode !== null || child.signalCode !== null,
+      "static server must exit before removing its cwd",
+    );
     await rm(sandbox, { recursive: true, force: true });
   });
 
