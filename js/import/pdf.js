@@ -86,14 +86,15 @@ export function reconstructPageText(items) {
     .join("\n");
 }
 
-export async function extractPdf(file, onProgress = () => {}) {
+export async function extractPdf(file, onProgress = () => {}, pdfjsRuntime) {
   if (!file || typeof file.arrayBuffer !== "function") {
     throw new TypeError("Selecione um arquivo PDF válido.");
   }
 
-  const { getDocument } = await loadPdfJs();
+  const { getDocument } = pdfjsRuntime || await loadPdfJs();
   const data = new Uint8Array(await file.arrayBuffer());
-  const loadingTask = getDocument({ data, enableScripting: false });
+  // Text-only extraction never instantiates PDF.js viewer or scripting components.
+  const loadingTask = getDocument({ data });
   let pdf;
 
   try {

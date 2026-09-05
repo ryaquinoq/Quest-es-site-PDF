@@ -130,3 +130,24 @@ test("validator reports attention when an option label is filled automatically",
   assert.equal(result.diagnostics[0].status, "attention");
   assert.ok(result.diagnostics[0].messages.some(message => /rótulo.*preenchido/i.test(message)));
 });
+
+test("validator keeps repaired question identity unique and stable", () => {
+  const input = {
+    questions: [
+      completeQuestion({ id: "same", number: 4 }),
+      completeQuestion({ id: "same", number: 4 }),
+      completeQuestion({ number: 4 }),
+      completeQuestion({ number: 4 })
+    ]
+  };
+
+  const first = validateQuiz(input);
+  const second = validateQuiz(input);
+  const ids = first.quiz.questions.map(({ id }) => id);
+
+  assert.deepEqual(first.quiz.questions.map(({ number }) => number), [1, 2, 3, 4]);
+  assert.deepEqual(ids, ["same", "same-2", "q-4", "q-4-2"]);
+  assert.deepEqual(second.quiz.questions.map(({ id }) => id), ids);
+  assert.equal(new Set(ids).size, ids.length);
+  assert.ok(first.diagnostics[1].messages.some(message => /identificador.*ajustado/i.test(message)));
+});

@@ -17,6 +17,24 @@ function feedbackByLabel(value) {
   );
 }
 
+export function ensureUniqueQuestionIds(questions = []) {
+  const usedIds = new Set();
+
+  return questions.map((question, index) => {
+    const fallbackId = `q-${question?.number || index + 1}`;
+    const baseId = String(question?.id || fallbackId).trim() || fallbackId;
+    let id = baseId;
+    let suffix = 2;
+
+    while (usedIds.has(id)) {
+      id = `${baseId}-${suffix}`;
+      suffix += 1;
+    }
+    usedIds.add(id);
+    return { ...question, id };
+  });
+}
+
 export function createQuestion(input = {}, index = 0) {
   const source = input && typeof input === "object" ? input : {};
   const rawOptions = Array.isArray(source.options)
@@ -37,7 +55,7 @@ export function createQuestion(input = {}, index = 0) {
   const optionFeedback = feedbackByLabel(source.feedback?.optionFeedback);
 
   return {
-    id: String(source.id || `q-${number}`),
+    id: String(source.id || `q-${number}`).trim(),
     number,
     topic: String(source.topic || "Sem tema").trim(),
     type: String(source.type || "Clínica").trim(),
@@ -62,6 +80,9 @@ export function createQuestion(input = {}, index = 0) {
 
 export function createQuiz(input = {}) {
   const now = new Date().toISOString();
+  const questions = Array.isArray(input.questions)
+    ? ensureUniqueQuestionIds(input.questions.map(createQuestion))
+    : [];
 
   return {
     schemaVersion: SCHEMA_VERSION,
@@ -73,7 +94,7 @@ export function createQuiz(input = {}) {
     introduction: String(input.introduction || input.metadata?.intro || "").trim(),
     themes: toList(input.themes || input.metadata?.themes),
     distribution: toList(input.distribution || input.metadata?.distribution),
-    questions: Array.isArray(input.questions) ? input.questions.map(createQuestion) : []
+    questions
   };
 }
 

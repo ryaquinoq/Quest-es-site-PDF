@@ -1,4 +1,4 @@
-import { createQuiz } from "../core/quiz-schema.js";
+import { createQuiz, ensureUniqueQuestionIds } from "../core/quiz-schema.js";
 
 const STATUS_PRIORITY = {
   ready: 0,
@@ -50,6 +50,10 @@ function questionDiagnostic(question, rawQuestion, index) {
   if (Number(rawQuestion.number) !== expectedNumber) {
     add("attention", `Numeração ajustada para ${expectedNumber}.`);
   }
+  const suppliedId = String(rawQuestion.id || "").trim();
+  if (suppliedId && question.id !== suppliedId) {
+    add("attention", `Identificador duplicado ajustado para ${question.id}.`);
+  }
 
   const sourceOptions = rawOptions(rawQuestion);
   if (sourceOptions.some(option => !String(option?.label || "").trim())) {
@@ -86,6 +90,7 @@ export function validateQuiz(input = {}) {
   quiz.questions.forEach((question, index) => {
     question.number = index + 1;
   });
+  quiz.questions = ensureUniqueQuestionIds(quiz.questions);
 
   const diagnostics = quiz.questions.map((question, index) => (
     questionDiagnostic(question, rawQuestions[index] || {}, index)

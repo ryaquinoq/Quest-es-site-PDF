@@ -94,3 +94,21 @@ test("migrateQuiz converts legacy metadata and feedback", () => {
   assert.deepEqual(quiz.themes, ["Clínica"]);
   assert.deepEqual(quiz.questions[0].feedback, { A: "Errada", B: "Certa" });
 });
+
+test("createQuiz assigns stable unique question IDs across source collisions", () => {
+  const input = {
+    questions: [
+      { id: "provided", number: 1 },
+      { id: "provided", number: 1 },
+      { number: 1 },
+      { number: 1 }
+    ]
+  };
+
+  const firstIds = createQuiz(input).questions.map(({ id }) => id);
+  const secondIds = createQuiz(input).questions.map(({ id }) => id);
+
+  assert.deepEqual(firstIds, ["provided", "provided-2", "q-1", "q-1-2"]);
+  assert.deepEqual(secondIds, firstIds);
+  assert.equal(new Set(firstIds).size, firstIds.length);
+});

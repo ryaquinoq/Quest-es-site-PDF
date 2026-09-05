@@ -7,6 +7,7 @@ const STATUS_LABELS = {
   attention: "Attention",
   blocked: "Blocked"
 };
+const fileLoaders = new WeakMap();
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -90,31 +91,66 @@ function renderReview(result, excludedQuestionIds) {
     </section>`;
 }
 
-async function readFile(file, store) {
+async function readSourceFile(file, onProgress) {
   const extension = file.name.split(".").pop()?.toLowerCase() || "";
   if (!ACCEPTED_EXTENSIONS.has(extension)) {
     throw new Error("Use um arquivo PDF, TXT, MD ou JSON.");
   }
 
-  updateDraft(store, {
-    sourceName: file.name,
-    loading: true,
-    progress: null,
-    error: ""
-  });
-
-  try {
-    if (extension === "pdf") {
-      const result = await extractPdf(file, (current, total) => {
-        updateDraft(store, { progress: { current, total } });
-      });
-      updateDraft(store, { sourceText: result.text });
-    } else {
-      updateDraft(store, { sourceText: await file.text() });
-    }
-  } finally {
-    updateDraft(store, { loading: false });
+  if (extension === "pdf") {
+    const result = await extractPdf(file, onProgress);
+    return { sourceName: file.name, sourceText: result.text };
   }
+
+  return { sourceName: file.name, sourceText: await file.text() };
+}
+
+export function createLatestFileLoader(store, readSource = readSourceFile) {
+  let generation = 0;
+
+  return async function loadFile(file) {
+    if (!file) return false;
+    const currentGeneration = ++generation;
+    store.setState(state => ({
+      importResult: null,
+      notice: null,
+      importDraft: {
+        ...state.importDraft,
+        sourceName: file.name,
+        excludedQuestionIds: [],
+        loading: true,
+        progress: null,
+        error: ""
+      }
+    }));
+
+    try {
+      const source = await readSource(file, (current, total) => {
+        if (currentGeneration === generation) {
+          updateDraft(store, { progress: { current, total } });
+        }
+      });
+      if (currentGeneration !== generation) return false;
+      updateDraft(store, {
+        sourceName: source.sourceName,
+        sourceText: source.sourceText
+      });
+      return true;
+    } catch (error) {
+      if (currentGeneration !== generation) return false;
+      updateDraft(store, { error: error.message });
+      return false;
+    } finally {
+      if (currentGeneration === generation) updateDraft(store, { loading: false });
+    }
+  };
+}
+
+function fileLoaderFor(store) {
+  if (!fileLoaders.has(store)) {
+    fileLoaders.set(store, createLatestFileLoader(store));
+  }
+  return fileLoaders.get(store);
 }
 
 function analyzeSource(store, sourceText) {
@@ -219,15 +255,7 @@ export function renderImportView(container, store) {
 
   const fileInput = container.querySelector("#file-input");
   const dropzone = container.querySelector("#dropzone");
-  const chooseFile = async file => {
-    if (!file) return;
-    try {
-      await readFile(file, store);
-      store.setState({ importResult: null, notice: null });
-    } catch (error) {
-      updateDraft(store, { loading: false, error: error.message });
-    }
-  };
+  const chooseFile = fileLoaderFor(store);
 
   dropzone.addEventListener("click", () => fileInput.click());
   dropzone.addEventListener("keydown", event => {
