@@ -4,6 +4,8 @@ import { readFile } from "node:fs/promises";
 
 import { createQuiz } from "../../js/core/quiz-schema.js";
 import {
+  MAX_DECOMPRESSED_BYTES,
+  MAX_SHARE_URL_LENGTH,
   SHARE_FALLBACK_MESSAGE,
   decodeQuizFragment,
   encodeQuizFragment,
@@ -95,4 +97,69 @@ test("missing native compression falls back to HTML", async () => {
       value: originalCompressionStream
     });
   }
+});
+
+test("missing native decompression falls back to HTML", async () => {
+  const originalDecompressionStream = globalThis.DecompressionStream;
+  Object.defineProperty(globalThis, "DecompressionStream", {
+    configurable: true,
+    value: undefined
+  });
+
+  try {
+    const decision = await getShareDecision({ schemaVersion: 2, questions: [] }, "https://medup.example/");
+    assert.deepEqual(decision, {
+      mode: "html",
+      message: SHARE_FALLBACK_MESSAGE
+    });
+  } finally {
+    Object.defineProperty(globalThis, "DecompressionStream", {
+      configurable: true,
+      value: originalDecompressionStream
+    });
+  }
+});
+
+test("decode rejects oversized encoded payloads from fragments and URLs", async () => {
+  const oversizedPayload = "A".repeat(MAX_SHARE_URL_LENGTH + 1);
+
+  for (const input of [
+    `#quiz=v2.${oversizedPayload}`,
+    `https://medup.example/app#quiz=v2.${oversizedPayload}`
+  ]) {
+    await assert.rejects(
+      decodeQuizFragment(input),
+      /payload compartilhado excede o limite de 12000 caracteres/i
+    );
+  }
+});
+
+test("decode rejects complete fragments and URLs above the share limit", async () => {
+  const validFragment = await encodeQuizFragment({ schemaVersion: 2, questions: [] });
+  const inputs = [
+    validFragment + "A".repeat(MAX_SHARE_URL_LENGTH - validFragment.length + 1),
+    `https://medup.example/${"x".repeat(MAX_SHARE_URL_LENGTH)}${validFragment}`
+  ];
+
+  for (const input of inputs) {
+    await assert.rejects(
+      decodeQuizFragment(input),
+      /link ou fragmento compartilhado excede o limite de 12000 caracteres/i
+    );
+  }
+});
+
+test("decode cancels deflate bombs before output exceeds the 2 MiB ceiling", async () => {
+  assert.equal(MAX_DECOMPRESSED_BYTES, 2 * 1024 * 1024);
+  const fragment = await encodeQuizFragment({
+    schemaVersion: 2,
+    introduction: "A".repeat(MAX_DECOMPRESSED_BYTES + 1),
+    questions: []
+  });
+  assert.ok(fragment.length < MAX_SHARE_URL_LENGTH);
+
+  await assert.rejects(
+    decodeQuizFragment(fragment),
+    /conteúdo descompactado excede o limite seguro de 2097152 bytes/i
+  );
 });

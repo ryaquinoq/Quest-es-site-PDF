@@ -1,4 +1,5 @@
 export const MAX_SHARE_URL_LENGTH = 12_000;
+export const MAX_DECOMPRESSED_BYTES = 2 * 1024 * 1024;
 export const SHARE_FALLBACK_MESSAGE =
   "Este simulado é grande demais para compartilhar por link. Baixe o HTML para compartilhar offline.";
 
@@ -7,6 +8,39 @@ const FRAGMENT_PREFIX = "#quiz=v2.";
 async function transformBytes(bytes, stream) {
   const transformed = new Blob([bytes]).stream().pipeThrough(stream);
   return new Uint8Array(await new Response(transformed).arrayBuffer());
+}
+
+async function decompressBytes(bytes) {
+  const transformed = new Blob([bytes]).stream()
+    .pipeThrough(new DecompressionStream("deflate-raw"));
+  const reader = transformed.getReader();
+  const chunks = [];
+  let totalBytes = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > MAX_DECOMPRESSED_BYTES) {
+        await reader.cancel("Limite de descompressão excedido.").catch(() => {});
+        throw new Error(
+          `Conteúdo descompactado excede o limite seguro de ${MAX_DECOMPRESSED_BYTES} bytes.`
+        );
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const output = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    output.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return output;
 }
 
 function bytesToBase64Url(bytes) {
@@ -36,7 +70,16 @@ function encodedPayload(fragment) {
   if (!hash.startsWith(FRAGMENT_PREFIX)) {
     throw new Error("Versão de link de simulado não reconhecida.");
   }
-  return hash.slice(FRAGMENT_PREFIX.length);
+  const payload = hash.slice(FRAGMENT_PREFIX.length);
+  if (payload.length > MAX_SHARE_URL_LENGTH) {
+    throw new Error(`Payload compartilhado excede o limite de ${MAX_SHARE_URL_LENGTH} caracteres.`);
+  }
+  if (fragment.length > MAX_SHARE_URL_LENGTH) {
+    throw new Error(
+      `Link ou fragmento compartilhado excede o limite de ${MAX_SHARE_URL_LENGTH} caracteres.`
+    );
+  }
+  return payload;
 }
 
 export async function encodeQuizFragment(quiz) {
@@ -56,14 +99,18 @@ export async function decodeQuizFragment(fragment) {
     throw new Error("Descompressão nativa indisponível.");
   }
   const compressed = base64UrlToBytes(encodedPayload(String(fragment || "")));
-  const bytes = await transformBytes(
-    compressed,
-    new DecompressionStream("deflate-raw")
-  );
+  const bytes = await decompressBytes(compressed);
   return JSON.parse(new TextDecoder().decode(bytes));
 }
 
 export async function getShareDecision(quiz, baseUrl) {
+  if (
+    typeof CompressionStream !== "function" ||
+    typeof DecompressionStream !== "function"
+  ) {
+    return { mode: "html", message: SHARE_FALLBACK_MESSAGE };
+  }
+
   try {
     const fragment = await encodeQuizFragment(quiz);
     const url = `${String(baseUrl || "").split("#", 1)[0]}${fragment}`;
