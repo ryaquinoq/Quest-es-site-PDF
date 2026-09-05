@@ -30,15 +30,85 @@ test("keeps current prompt compatibility and all option feedback", async () => {
   assert.equal(result.diagnostics.some((item) => item.status === "blocked"), false);
 });
 
-test("imports raw and fenced JSON through schema migration", async () => {
-  const source = await readFile("tests/fixtures/current-sample.json", "utf8");
-  const raw = parseJson(source);
-  const fenced = parseJson(`Texto antes\n\`\`\`json\n${source}\n\`\`\`\nTexto depois`);
+test("splits legacy options displayed on the same line", () => {
+  const result = importQuiz(`
+Questão 1 — Cardiologia | Clínica
+Qual é a conduta?
+A) Observar B) Solicitar MAPA C) Pedir radiografia D) Dosar troponina
 
-  assert.equal(raw.schemaVersion, 2);
-  assert.equal(raw.questions.length, 10);
-  assert.equal(fenced.questions.length, 10);
-  assert.equal(fenced.questions[0].correctOption, "B");
+GABARITO E FEEDBACK DETALHADO
+Questão 1 — Resposta correta: B
+Por que B está CORRETA: O MAPA registra a pressão fora do consultório.
+Por que as demais estão INCORRETAS: A) Não confirma. C) Não confirma. D) Não confirma.
+  `);
+
+  assert.deepEqual(result.quiz.questions[0].options, [
+    { label: "A", text: "Observar" },
+    { label: "B", text: "Solicitar MAPA" },
+    { label: "C", text: "Pedir radiografia" },
+    { label: "D", text: "Dosar troponina" }
+  ]);
+  assert.equal(result.diagnostics[0].status, "attention");
+});
+
+function assertCurrentSampleFeedback(quiz) {
+  assert.equal(quiz.schemaVersion, 2);
+  assert.equal(quiz.questions.length, 10);
+
+  for (const question of quiz.questions) {
+    assert.deepEqual(Object.keys(question.feedback), question.options.map(({ label }) => label));
+    assert.equal(
+      Object.values(question.feedback).every((feedback) => feedback.length > 0),
+      true,
+      `question ${question.number} lost option feedback`
+    );
+  }
+
+  assert.match(quiz.questions[0].feedback.A, /^Diazepam é um benzodiazepínico/);
+  assert.match(quiz.questions[0].feedback.C, /^Tiamina é vital/);
+  assert.equal(
+    quiz.questions[1].feedback.B,
+    "Intoxicação Idiossincrática ocorre pela ingestão recente de uma quantidade irrisória de álcool, gerando comportamento inadaptativo, e não na cessação (abstinência)."
+  );
+  assert.equal(
+    quiz.questions[1].feedback.D,
+    "A Síndrome de Wernicke manifesta-se tipicamente com ataxia, oftalmoplegia e confusão, sem as características puras de alucinação vívida pós-cessação da Alucinose."
+  );
+}
+
+test("migrates every option feedback from raw legacy JSON", async () => {
+  const source = await readFile("tests/fixtures/current-sample.json", "utf8");
+
+  assertCurrentSampleFeedback(parseJson(source));
+});
+
+test("migrates every option feedback from fenced legacy JSON", async () => {
+  const source = await readFile("tests/fixtures/current-sample.json", "utf8");
+
+  assertCurrentSampleFeedback(
+    parseJson(`Texto antes\n\`\`\`json\n${source}\n\`\`\`\nTexto depois`)
+  );
+});
+
+test("does not invent option feedback from an unlabeled incorrect reason", () => {
+  const quiz = parseJson(JSON.stringify({
+    questions: [{
+      number: 1,
+      prompt: "Qual alternativa está correta?",
+      options: [
+        { label: "A", text: "Correta" },
+        { label: "B", text: "Incorreta" }
+      ],
+      feedback: {
+        correctOption: "A",
+        correctReason: "Justificativa explícita da correta.",
+        incorrectReason: "As demais alternativas não se aplicam."
+      }
+    }]
+  }));
+
+  assert.equal(quiz.questions[0].feedback.A, "Justificativa explícita da correta.");
+  assert.equal(quiz.questions[0].feedback.B, "");
 });
 
 test("imports generic Markdown questions and inline answers", async () => {

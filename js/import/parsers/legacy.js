@@ -1,6 +1,6 @@
 const QUESTION_HEADER = /^Quest[aã]o\s+(\d+)\s*(?:[-—–:]\s*)?([^|\n]*?)(?:\s*\|\s*([^\n]+))?\s*$/gimu;
 const ANSWER_KEY_HEADER = /^(?:[^\p{L}\p{N}\n]*)?(?:GABARITO(?:\s+E\s+FEEDBACK\s+DETALHADO)?|FEEDBACK\s+DETALHADO)\s*:?\s*$/imu;
-const OPTION_MARKER = /^(?:[^\p{L}\p{N}\n]*)(?:Alternativa\s+)?([A-E])\s*(?:[).:]|[-—–])\s+/gimu;
+const OPTION_MARKER = /(?:^|[^\S\n]+)(?:[^\p{L}\p{N}\n]*)(?:Alternativa\s+)?([A-E])\s*(?:[).:]|[-—–])\s+/gimu;
 const TAKE_HOME_MARKER = /^(?:[^\p{L}\p{N}\n]*)?Take\s*home\s*message\s*:\s*/imu;
 
 function withoutDecorators(value) {

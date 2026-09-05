@@ -10,6 +10,17 @@ test("prefers canonical markers over surrounding prose", () => {
   assert.ok(result.reasons.some((reason) => reason.includes("marcadores canônicos")));
 });
 
+test("gives accented canonical markers the same priority and confidence", () => {
+  const result = detectFormat(`{"questions": []}
+=== INÍCIO DA QUESTÃO ===
+Número: 1
+=== FIM DA QUESTÃO ===`);
+
+  assert.equal(result.format, "medup-docs");
+  assert.equal(result.confidence, 0.98);
+  assert.ok(result.reasons.some((reason) => reason.includes("limites de início e fim")));
+});
+
 test("recognizes raw and fenced JSON quiz shapes", () => {
   const raw = detectFormat('{"version":2,"questions":[]}');
   const fenced = detectFormat("Texto introdutório\n```json\n{\"questions\": [}\n```");

@@ -16,8 +16,8 @@ export function detectFormat(text) {
   const source = String(text ?? "");
   const trimmed = source.trim();
 
-  const canonicalStarts = occurrences(source, /^=== INICIO DA QUESTAO ===$/gim);
-  const canonicalEnds = occurrences(source, /^=== FIM DA QUESTAO ===$/gim);
+  const canonicalStarts = occurrences(source, /^=== IN[IÍ]CIO DA QUEST[AÃ]O ===$/gim);
+  const canonicalEnds = occurrences(source, /^=== FIM DA QUEST[AÃ]O ===$/gim);
   if (canonicalStarts || canonicalEnds) {
     const reasons = ["marcadores canônicos de questão encontrados"];
     const hasCompleteBoundary = canonicalStarts > 0 && canonicalEnds > 0;
