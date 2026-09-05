@@ -10,6 +10,8 @@ const DEFAULT_IMPORT_DRAFT = Object.freeze({
 const DEFAULT_STATE = Object.freeze({
   route: "import",
   activeQuiz: null,
+  libraryItems: [],
+  libraryLoading: false,
   importDraft: DEFAULT_IMPORT_DRAFT,
   importResult: null,
   selectedQuestion: 0,

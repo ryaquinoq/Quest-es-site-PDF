@@ -1,11 +1,15 @@
 import { migrateQuiz } from "./js/core/quiz-schema.js";
 import { decodeQuizFragment } from "./js/share/codec.js";
+import { quizLibrary } from "./js/storage/library.js";
 import { createStore } from "./js/ui/state.js";
+import { renderEditorView } from "./js/ui/views/editor-view.js";
 import { renderImportView } from "./js/ui/views/import-view.js";
+import { renderLibraryView } from "./js/ui/views/library-view.js";
 import { renderShareView } from "./js/ui/views/share-view.js";
 import { renderStudyView } from "./js/ui/views/study-view.js";
 
 const ROUTE_TO_TAB = {
+  library: "biblioteca",
   import: "import",
   study: "simulado",
   editor: "editor",
@@ -41,28 +45,7 @@ async function hydrateSharedLinkState() {
   }
 }
 
-function hydrateLocalLibraryState() {
-  try {
-    const savedQuiz = window.localStorage.getItem("medup.quiz");
-    return savedQuiz
-      ? { activeQuiz: parseQuiz(savedQuiz), route: "study" }
-      : {};
-  } catch {
-    return {
-      notice: {
-        type: "error",
-        message: "Não foi possível restaurar o simulado salvo neste navegador."
-      }
-    };
-  }
-}
-
-async function initialState() {
-  const sharedState = await hydrateSharedLinkState();
-  return sharedState || hydrateLocalLibraryState();
-}
-
-function renderApp(store) {
+function renderApp(store, library, setEditorController) {
   const state = store.getState();
   const activeTab = ROUTE_TO_TAB[state.route] || "import";
 
@@ -80,18 +63,41 @@ function renderApp(store) {
   notice.dataset.type = state.notice?.type || "";
 
   if (state.route === "import") {
-    renderImportView(document.querySelector("#import-tab"), store);
+    renderImportView(document.querySelector("#import-tab"), store, library);
   }
   if (state.route === "study") renderStudyView(store);
+  if (state.route === "library") {
+    renderLibraryView(document.querySelector("#biblioteca-tab"), store, library);
+  }
+  if (state.route === "editor") {
+    setEditorController(renderEditorView(
+      document.querySelector("#editor-tab"),
+      store,
+      library
+    ));
+  } else {
+    setEditorController(null);
+  }
   if (state.route === "share") {
     void renderShareView(document.querySelector("#exportar-tab"), store);
   }
 }
 
 async function start() {
-  const store = createStore(await initialState());
+  const sharedState = await hydrateSharedLinkState();
+  const store = createStore({ ...(sharedState || {}), libraryLoading: true });
+  let editorController = null;
+  const render = () => renderApp(
+    store,
+    quizLibrary,
+    controller => { editorController = controller; }
+  );
 
-  const switchRoute = route => {
+  const switchRoute = async route => {
+    if (store.getState().route === "editor" && route !== "editor") {
+      const saved = await editorController?.save();
+      if (saved === false) return;
+    }
     if (route === "editor" && store.getState().readOnly) {
       store.setState({
         route: "study",
@@ -99,7 +105,7 @@ async function start() {
       });
       return;
     }
-    if (route !== "import" && !store.getState().activeQuiz) {
+    if (!["import", "library"].includes(route) && !store.getState().activeQuiz) {
       store.setState({
         route: "import",
         notice: { type: "info", message: "Importe questões para abrir esta área." }
@@ -113,18 +119,42 @@ async function start() {
     tab.addEventListener("click", () => {
       const route = Object.entries(ROUTE_TO_TAB)
         .find(([, tabName]) => tabName === tab.dataset.tab)?.[0] || "import";
-      switchRoute(route);
+      void switchRoute(route);
     });
   }
 
   window.switchTab = tabName => {
     const route = Object.entries(ROUTE_TO_TAB)
       .find(([, name]) => name === tabName)?.[0] || "import";
-    switchRoute(route);
+    void switchRoute(route);
   };
 
-  store.subscribe(() => renderApp(store));
-  renderApp(store);
+  store.subscribe(render);
+  render();
+
+  try {
+    const imported = sharedState ? null : await quizLibrary.importLegacy();
+    const libraryItems = await quizLibrary.list();
+    const patch = { libraryItems, libraryLoading: false };
+    if (!sharedState && imported) {
+      Object.assign(patch, {
+        activeQuiz: imported,
+        route: "study",
+        notice: { type: "success", message: "Simulado anterior adicionado à biblioteca local." }
+      });
+    } else if (!sharedState && libraryItems.length) {
+      patch.route = "library";
+    }
+    store.setState(patch);
+  } catch (error) {
+    store.setState({
+      libraryLoading: false,
+      notice: {
+        type: "error",
+        message: error.message || "Não foi possível abrir a biblioteca local."
+      }
+    });
+  }
 }
 
 void start();

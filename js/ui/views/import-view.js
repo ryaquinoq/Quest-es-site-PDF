@@ -179,7 +179,7 @@ function analyzeSource(store, sourceText) {
   }
 }
 
-function confirmImport(store) {
+async function confirmImport(store, library) {
   const state = store.getState();
   const { importResult, importDraft } = state;
   if (!importResult) return;
@@ -194,25 +194,40 @@ function confirmImport(store) {
 
   if (hasIncludedBlocked || includedQuestions.length === 0) return;
 
-  store.setState({
-    route: "study",
-    activeQuiz: {
-      ...importResult.quiz,
-      sourceName: importDraft.sourceName || importResult.quiz.sourceName,
-      updatedAt: new Date().toISOString(),
-      questions: includedQuestions
-    },
-    selectedQuestion: 0,
-    answers: {},
-    finalized: false,
-    notice: {
-      type: "success",
-      message: `${includedQuestions.length} questão carregada para estudo.`
-    }
-  });
+  const activeQuiz = {
+    ...importResult.quiz,
+    sourceName: importDraft.sourceName || importResult.quiz.sourceName,
+    updatedAt: new Date().toISOString(),
+    questions: includedQuestions
+  };
+
+  try {
+    if (library) await library.put(activeQuiz);
+    const libraryItems = library ? await library.list() : state.libraryItems;
+    store.setState({
+      route: "study",
+      activeQuiz,
+      libraryItems,
+      selectedQuestion: 0,
+      answers: {},
+      finalized: false,
+      readOnly: false,
+      notice: {
+        type: "success",
+        message: `${includedQuestions.length} questão carregada para estudo.`
+      }
+    });
+  } catch (error) {
+    store.setState({
+      notice: {
+        type: "error",
+        message: error.message || "Não foi possível salvar o simulado na biblioteca local."
+      }
+    });
+  }
 }
 
-export function renderImportView(container, store) {
+export function renderImportView(container, store, library) {
   const { importDraft, importResult } = store.getState();
   const progress = importDraft.progress;
 
@@ -281,6 +296,6 @@ export function renderImportView(container, store) {
   }
 
   container.querySelector("#confirm-import")?.addEventListener("click", () => {
-    confirmImport(store);
+    void confirmImport(store, library);
   });
 }

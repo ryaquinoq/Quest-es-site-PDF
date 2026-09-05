@@ -23,6 +23,7 @@
 
     <!-- Navegação por Abas -->
     <nav class="main-tabs" aria-label="Navegação do aplicativo">
+      <button class="tab-btn" data-tab="biblioteca" id="tab-biblioteca">Biblioteca</button>
       <button class="tab-btn active" data-tab="import" id="tab-import">Importar</button>
       <button class="tab-btn" data-tab="simulado" id="tab-simulado">Simulado</button>
       <button class="tab-btn" data-tab="editor" id="tab-editor">Editar Questões</button>
@@ -33,6 +34,8 @@
   <!-- Container Geral -->
   <main class="app-container">
     <div id="app-notice" role="status" hidden></div>
+
+    <section id="biblioteca-tab" class="tab-content"></section>
 
     <!-- ABA 1: IMPORTAÇÃO -->
     <section id="import-tab" class="tab-content active">
