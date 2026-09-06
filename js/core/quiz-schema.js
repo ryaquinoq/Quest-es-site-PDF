@@ -1,3 +1,4 @@
+import { quizTitle } from './quiz-title.js';
 export const SCHEMA_VERSION = 2;
 
 const OPTION_LABELS = ["A", "B", "C", "D", "E"];
@@ -129,7 +130,7 @@ export function createQuiz(input = {}) {
     createdAt: input.createdAt || now,
     updatedAt: input.updatedAt || now,
     sourceName: String(input.sourceName || ""),
-    title: String(input.title || input.metadata?.title || "Simulado sem título").trim(),
+    title: quizTitle(input.title || input.metadata?.title || "Simulado sem título", input.questions || []),
     introduction: String(input.introduction || input.metadata?.intro || "").trim(),
     themes: toList(input.themes || input.metadata?.themes),
     distribution: toList(input.distribution || input.metadata?.distribution),

@@ -50,6 +50,14 @@ export function generateStandaloneHtml(quiz) {
     .option-item.incorrect { border-color: #a51c30; background: #fbecef; }
     .option-feedback, .take-home { margin: -4px 0 4px; padding: 10px 12px; border-left: 3px solid #c39a4b; background: #faf8f1; }
     .take-home { margin-top: 18px; }
+    .question-paper { background: white; border: 1px solid #d9dfda; border-radius: 16px; padding: 24px; }
+    .question-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; font-size: 14px; color: #5b6861; }
+    .question-meta span { padding: 4px 8px; border: 1px solid #d9dfda; border-radius: 20px; }
+    .option-item { display: grid; grid-template-columns: 32px minmax(0,1fr); gap: 12px; align-items: start; line-height: 1.6; }
+    .option-letter { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #f2f4ef; font-weight: 700; }
+    .option-copy { display: block; min-width: 0; overflow-wrap: anywhere; }
+    .option-feedback { display: block; margin: 12px 0 0; white-space: pre-line; line-height: 1.6; }
+    h1 { font-size: 24px; overflow-wrap: anywhere; }
     .actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-top: 18px; }
     .actions button, #review button { min-height: 42px; padding: 9px 15px; border: 1px solid #086448; border-radius: 6px; background: #fff; color: #086448; cursor: pointer; }
     .actions .primary { background: #086448; color: #fff; }

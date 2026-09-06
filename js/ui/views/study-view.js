@@ -15,7 +15,7 @@ function optionMarkup(question, answers, finalized) {
     const feedback = `<span class="option-feedback" data-option-feedback="${escapeHtml(option.label)}" ${showFeedback ? "" : "hidden"}><strong>${correct ? "Correta" : "Incorreta"}:</strong> ${escapeHtml(question.feedback?.[option.label] || "Justificativa não informada no documento.")}</span>`;
     return `<button class="option-item${stateClass}" type="button" data-option="${escapeHtml(option.label)}" aria-label="Alternativa ${escapeHtml(option.label)}: ${escapeHtml(option.text)}" aria-pressed="${chosen}">
       <span class="option-letter">${escapeHtml(option.label)}</span>
-      <span class="option-copy"><span>Alternativa ${escapeHtml(option.label)}: ${escapeHtml(option.text)}</span>${feedback}</span>
+      <span class="option-copy"><span>${escapeHtml(option.text)}</span>${feedback}</span>
     </button>`;
   }).join("");
 }

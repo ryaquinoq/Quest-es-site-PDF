@@ -122,4 +122,13 @@ test("shares a small quiz by link and a large quiz as offline HTML", async t => 
   await offlinePage.locator("[data-study-question]").first().locator("[data-option]").first().click();
   await offlinePage.locator("[data-option-feedback]:visible").first().waitFor();
   assert.equal(await offlinePage.locator("[data-option-feedback]:visible").count(), 2);
+  for (const width of [1280, 390]) {
+    await offlinePage.setViewportSize({width,height:900});
+    const fits = await offlinePage.locator('[data-study-question]:visible .option-copy').evaluateAll(items => items.every(item => {
+      const text = item.firstElementChild.getBoundingClientRect();
+      const feedback = item.lastElementChild.getBoundingClientRect();
+      return feedback.top >= text.bottom && item.scrollWidth <= item.clientWidth + 1;
+    }));
+    assert.equal(fits, true, 'feedback must appear below the option without overflow');
+  }
 });

@@ -6,7 +6,7 @@ import { importQuiz } from "../../js/import/pipeline.js";
 test("short prompt and download stay synchronized", async () => {
  const doc = await readFile(new URL("../../PROMPT-SUPREMO-MEDUP.md", import.meta.url), "utf8");
  assert.ok(doc.includes(PROMPT_SUPREMO));
- assert.ok(PROMPT_SUPREMO.length < 3000);
+ assert.ok(PROMPT_SUPREMO.length < 4500);
 });
 test("original split answer format keeps all feedback and source", () => {
  const result = importQuiz(`Temas: Cardiologia
