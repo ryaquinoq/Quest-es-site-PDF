@@ -47,3 +47,11 @@ export function normalizeSource(text, options = {}) {
 
   return normalized;
 }
+
+// Documents exported by Docs can collapse a whole question into one paragraph.
+export function expandCompactQuestions(text) {
+  return text
+    .replace(/\b(Quest[aã]o[ \t]+\d+)\b[ \t]*(?![—–\-:|])/giu, "\n$1\n")
+    .replace(/[ \t]+(?=(?:Resposta(?: correta)?|Justificativa [A-E]|Fonte(?: no material)?|Take home message|Ponto-chave(?: para revis[aã]o)?)\s*:)/giu, "\n")
+    .replace(/[ \t]+(?=[A-E]\)[ \t]+)/gu, "\n");
+}

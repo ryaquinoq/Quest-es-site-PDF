@@ -48,3 +48,11 @@ test("NotebookLM bold Markdown and PDF page boundaries import with feedback", ()
  assert.equal(result.quiz.questions[0].correctOption, "B");
  assert.equal(result.quiz.questions[0].feedback.A, "Errada");
 });
+test("compact paragraphs retain answers and four explanations", () => {
+ const result = importQuiz('Questão 1 Qual a resposta? A) Um B) Dois C) Três D) Quatro Resposta correta: B Justificativa A: Erro A. Justificativa B: Correta. Justificativa C: Erro C. Justificativa D: Erro D. Fonte: Aula. Take home message: Resumo.');
+ assert.equal(result.quiz.questions.length, 1);
+ assert.equal(result.quiz.questions[0].options.length, 4);
+ assert.equal(result.quiz.questions[0].correctOption, 'B');
+ assert.equal(result.quiz.questions[0].feedback.D, 'Erro D.');
+ assert.notEqual(result.diagnostics[0].status, 'blocked');
+});

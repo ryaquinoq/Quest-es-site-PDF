@@ -71,6 +71,7 @@ function parseQuestion(header, block) {
     prompt: promptParts.join("\n"),
     options,
     correctOption,
+    sourceReference: fields.find(m => /^Fonte/i.test(m[1]))?.[2]?.trim() || "",
     feedback: Object.keys(feedback).length ? feedback : correctOption && explanation ? { [correctOption]: explanation } : {},
     takeHome: takeHomeMatch
       ? clean(block.slice(takeHomeMatch.index + takeHomeMatch[0].length))

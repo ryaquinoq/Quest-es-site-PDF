@@ -12,7 +12,7 @@ QUALIDADE
 
 SAÍDA
 Comece com os 3 a 5 temas cobrados e a quantidade de questões clínicas e conceituais. Depois apresente todas as questões e, somente ao final, o gabarito comentado.
-Use os títulos e rótulos do modelo abaixo. Cada alternativa deve começar em uma nova linha. Não use tabelas. Substitua os colchetes; numere de 1 em diante. No gabarito, a letra deve corresponder à resposta correta daquela questão.
+Use os títulos e rótulos do modelo abaixo. Escreva o título Questão 1 em sua própria linha e o enunciado na linha seguinte. Cada alternativa e cada rótulo do gabarito deve começar em uma nova linha. Separe as questões com uma linha em branco. Não use tabelas. Substitua os colchetes; numere de 1 em diante. No gabarito, a letra deve corresponder à resposta correta daquela questão.
 
 Questão 1 — [Tema] | [Clínica ou Conceito]
 [Enunciado completo e pergunta]

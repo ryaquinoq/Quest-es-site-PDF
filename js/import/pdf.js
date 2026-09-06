@@ -120,6 +120,7 @@ export async function extractPdf(file, onProgress = () => {}, pdfjsRuntime) {
       pages
     };
   } finally {
-    if (pdf) await pdf.destroy();
+    if (typeof loadingTask.destroy === "function") await loadingTask.destroy();
+    else if (typeof pdf?.destroy === "function") await pdf.destroy();
   }
 }

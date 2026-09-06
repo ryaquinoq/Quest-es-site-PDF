@@ -1,6 +1,6 @@
 import { createQuiz } from "../core/quiz-schema.js";
 import { detectFormat } from "./detector.js";
-import { normalizeSource } from "./normalizer.js";
+import { normalizeSource, expandCompactQuestions } from "./normalizer.js";
 import { parse as parseGeneric } from "./parsers/generic.js";
 import { parse as parseJson } from "./parsers/json.js";
 import { parse as parseLegacy } from "./parsers/legacy.js";
@@ -23,12 +23,14 @@ export function importQuiz(rawText, options = {}) {
   let adapter = adapters[detection.format];
   let best;
   if (!options.format && detection.format !== "json") {
+    for (const variant of [normalized, expandCompactQuestions(normalized)]) {
     for (const [format, candidate] of Object.entries(adapters)) {
       if (format === "json") continue;
-      const result = validateQuiz(candidate.parse(normalized));
+      const result = validateQuiz(candidate.parse(variant));
       const usable = result.diagnostics.filter(item => item.status !== "blocked").length;
       const score = usable * 1000 + result.quiz.questions.filter(q => q.options.length >= 2 && q.prompt).length + (format === detection.format ? 0.1 : 0);
       if (!best || score > best.score) best = { result, score, format };
+    }
     }
     if (best?.score > 0) return {
       ...best.result, detectedFormat: best.format, confidence: detection.confidence, sourceText
