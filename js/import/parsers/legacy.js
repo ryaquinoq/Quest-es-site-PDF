@@ -109,6 +109,11 @@ function optionFeedback(text) {
 }
 
 function applyAnswer(question, text) {
+  const sourceMatch = text.match(/^\s*Fonte(?: no material)?\s*:\s*([\s\S]*)$/imu);
+  if (sourceMatch) {
+    question.sourceReference = withoutDecorators(sourceMatch[1]);
+    text = text.slice(0, sourceMatch.index).trim();
+  }
   const correctMatch = text.match(/(?:Resposta\s+correta|Resposta|Gabarito|Correta)\s*:\s*([A-E])\b/iu);
   const correctReasonMatch = text.match(
     /(?:✅\s*)?Por\s+que\s+([A-E])\s+est[aá]\s+corret[ao]\s*:\s*([\s\S]*?)(?=(?:❌\s*)?Por\s+que\s+(?:as\s+demais|as\s+outras|as\s+alternativas)|(?:📌\s*)?Ponto-chave|(?:🎯\s*)?Take\s*home|$)/iu

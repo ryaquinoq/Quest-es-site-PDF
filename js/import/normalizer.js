@@ -20,6 +20,7 @@ export function normalizeSource(text, options = {}) {
     .replace(/\r\n?/g, "\n")
     .replace(/\f/g, () => pageBreakToken ? `\n${pageBreakToken}\n` : "\n\n")
     .replace(UNICODE_SPACES, " ")
+    .replace(/\\([.*_()[\]#>\-])/g, "$1")
     .replace(/\uFEFF|[\u200B-\u200D]/g, "")
     .replace(/^<<< MEDUP_PAGE_BREAK:\d+ >>>\s*$/gm, "")
     .replace(/\*\*([^\n]*?)\*\*|__([^\n]*?)__/g, (_, bold, underline) => bold ?? underline)

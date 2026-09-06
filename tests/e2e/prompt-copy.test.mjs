@@ -55,7 +55,7 @@ test("Prompt Supremo can be read, copied, downloaded, and closed with focus retu
   await trigger.click();
   const dialog = page.getByRole("dialog", { name: "Prompt Supremo MedUp" });
   await dialog.waitFor();
-  assert.match(await dialog.textContent(), /Use somente as fontes/);
+  assert.match(await dialog.textContent(), /baseadas exclusivamente nas fontes/);
 
   await dialog.getByRole("button", { name: "Copiar prompt" }).click();
   const clipboard = await page.evaluate(() => navigator.clipboard.readText());
