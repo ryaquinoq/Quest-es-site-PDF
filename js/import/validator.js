@@ -38,6 +38,15 @@ function questionDiagnostic(question, rawQuestion, index) {
   }
 
   const optionLabels = question.options.map(({ label }) => label);
+  for (const option of question.options) {
+    const embedded = Array.from(option.text.matchAll(/(?:^|\s)\(?([A-E])\)[ \t]+/gu));
+    if (embedded.some(match => !optionLabels.includes(match[1]))) {
+      add("blocked", "Uma alternativa parece estar incorporada ao texto de outra. Revise a separação das opções.");
+    }
+  }
+  if (Object.keys(question.feedback).some(label => /^[A-E]$/.test(label) && !optionLabels.includes(label))) {
+    add("blocked", "O gabarito contém justificativa para uma alternativa que não foi localizada.");
+  }
   if (new Set(optionLabels).size !== optionLabels.length) {
     add("blocked", "Há rótulos de alternativas duplicados.");
   }

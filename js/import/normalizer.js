@@ -51,7 +51,13 @@ export function normalizeSource(text, options = {}) {
 // Documents exported by Docs can collapse a whole question into one paragraph.
 export function expandCompactQuestions(text) {
   return text
-    .replace(/\b(Quest[aã]o[ \t]+\d+)\b[ \t]*(?![—–\-:|])/giu, "\n$1\n")
+    .replace(/\bResposta[ \t]*\n[ \t]*correta/giu, "Resposta correta")
+    .replace(/\b(Justificativa|Alternativa)[ \t]*\n[ \t]*([A-E])/giu, "$1 $2")
+    .replace(/\bTake[ \t\n]+home[ \t\n]+message/giu, "Take home message")
+    .replace(/\b(Resposta correta|Justificativa [A-E]|Fonte(?: no material)?|Take home message)[ \t]*\n[ \t]*:/giu, "$1:")
+    .replace(/\b(Quest[aã]o[ \t]+\d+)\b([ \t]+)(?=[^\s—–\-:|\d])/giu, "\n$1\n")
     .replace(/[ \t]+(?=(?:Resposta(?: correta)?|Justificativa [A-E]|Fonte(?: no material)?|Take home message|Ponto-chave(?: para revis[aã]o)?)\s*:)/giu, "\n")
-    .replace(/[ \t]+(?=[A-E]\)[ \t]+)/gu, "\n");
+    .replace(/[ \t]+(?=(?:Alternativa\s+)?\(?[A-E]\)\s*\S)/gu, "\n")
+    .replace(/^\(([A-E])\)[ \t]*/gmu, "$1) ")
+    .replace(/^([A-E])\)(?=\S)/gmu, "$1) ");
 }

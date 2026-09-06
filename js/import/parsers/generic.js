@@ -11,10 +11,12 @@ function clean(value) {
 
 function questionHeaders(text) {
   const headers = [];
+  const explicitHeadings = /^\s*(?:#{1,6}\s*)?Quest[aã]o\s+\d+/imu.test(text);
   let match;
 
   QUESTION_HEADER.lastIndex = 0;
   while ((match = QUESTION_HEADER.exec(text)) !== null) {
+    if (explicitHeadings && !match[1]) continue;
     headers.push({
       index: match.index,
       contentStart: QUESTION_HEADER.lastIndex,
@@ -49,7 +51,9 @@ function parseOptions(text) {
 }
 
 function parseQuestion(header, block) {
-  const answerMatch = block.match(INLINE_ANSWER);
+  const firstOption = block.search(new RegExp(OPTION_MARKER.source, "imu"));
+  const answerMatch = Array.from(block.matchAll(new RegExp(INLINE_ANSWER.source, "gimu")))
+    .find(match => firstOption < 0 || match.index > firstOption);
   const explanationMatch = block.match(EXPLANATION);
   const takeHomeMatch = block.match(TAKE_HOME);
   const trailingStart = firstIndex(answerMatch, explanationMatch, takeHomeMatch);

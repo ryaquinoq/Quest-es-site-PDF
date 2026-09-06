@@ -16,7 +16,8 @@ const adapters = {
 
 export function importQuiz(rawText, options = {}) {
   const sourceText = String(rawText || "");
-  const normalized = normalizeSource(sourceText);
+  const rawDetection = detectFormat(sourceText);
+  const normalized = rawDetection.format === "json" ? sourceText : normalizeSource(sourceText);
   const detection = options.format
     ? { format: options.format, confidence: 1, reasons: ["manual"] }
     : detectFormat(normalized);
@@ -29,7 +30,8 @@ export function importQuiz(rawText, options = {}) {
       const result = validateQuiz(candidate.parse(variant));
       const usable = result.diagnostics.filter(item => item.status !== "blocked").length;
       const usableRatio = result.quiz.questions.length ? usable / result.quiz.questions.length : 0;
-      const score = usable * 1000 + result.quiz.questions.filter(q => q.options.length >= 2 && q.prompt).length + (format === detection.format ? 0.1 : 0);
+      const completeness = result.quiz.questions.reduce((total, q) => total + q.options.length + q.options.filter(o => q.feedback[o.label]).length, 0);
+      const score = usable * 1000 + completeness + (format === detection.format ? 0.1 : 0);
       if (!best || score > best.score) best = { result, score, format, confidence: usableRatio };
     }
     }
