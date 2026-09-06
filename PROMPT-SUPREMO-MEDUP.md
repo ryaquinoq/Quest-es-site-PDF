@@ -34,8 +34,7 @@ Ponto-chave para revisão:
 [Distinção ou regra essencial em até duas frases.]
 Take home message:
 [Uma frase curta que consolide o aprendizado.]
-Fonte no material:
-[Documento e seção ou página, apenas quando identificáveis.]
+Fonte: [Documento e seção/página identificável.]
 
-Repita o gabarito para cada questão. Mantenha o ponto-chave e o take home no gabarito para não revelar pistas durante o simulado. Se as fontes divergirem ou estiverem desatualizadas, sinalize isso e não transforme a divergência em uma resposta inequívoca. Não afirme atualidade de diretrizes sem suporte das fontes. Antes de entregar, confira se cada questão tem uma única melhor resposta, se o detalhe decisivo está no enunciado e se as justificativas realmente distinguem as quatro opções. Corrija alternativas parcialmente corretas que gerem ambiguidade. Confira também a correspondência entre números, letras corretas e justificativas.
+Repita o gabarito por questão, incluindo ponto-chave e take home apenas nele. Sinalize divergências nas fontes e não presuma atualidade. Revise para garantir uma única resposta correta, dados suficientes, justificativas claras e correspondência entre números e letras.
 ```
