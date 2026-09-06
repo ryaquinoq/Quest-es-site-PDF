@@ -123,7 +123,7 @@ export function generateStandaloneHtml(quiz) {
           button.classList.toggle("incorrect", selected && label !== question.correctOption);
         });
         stage.querySelectorAll("[data-option-feedback]").forEach(item => {
-          item.hidden = item.dataset.optionFeedback !== label;
+          item.hidden = false;
         });
         const takeHome = stage.querySelector("[data-take-home]");
         takeHome.hidden = !takeHome.textContent.trim().replace("Para levar:", "").trim();

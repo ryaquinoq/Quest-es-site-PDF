@@ -120,5 +120,6 @@ test("shares a small quiz by link and a large quiz as offline HTML", async t => 
   await offlinePage.goto(pathToFileURL(htmlPath).href);
   await offlinePage.locator("[data-study-question]").first().waitFor();
   await offlinePage.locator("[data-study-question]").first().locator("[data-option]").first().click();
-  await offlinePage.locator("[data-option-feedback]:visible").waitFor();
+  await offlinePage.locator("[data-option-feedback]:visible").first().waitFor();
+  assert.equal(await offlinePage.locator("[data-option-feedback]:visible").count(), 2);
 });

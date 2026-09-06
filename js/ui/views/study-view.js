@@ -11,8 +11,8 @@ function optionMarkup(question, answers, finalized) {
     const chosen = selected === option.label;
     const correct = option.label === question.correctOption;
     const stateClass = selected || finalized ? (correct ? " is-correct" : chosen ? " is-incorrect" : "") : "";
-    const showFeedback = (chosen || finalized) && question.feedback?.[option.label];
-    const feedback = `<span class="option-feedback" data-option-feedback="${escapeHtml(option.label)}" ${showFeedback ? "" : "hidden"}>${escapeHtml(question.feedback?.[option.label] || "")}</span>`;
+    const showFeedback = selected || finalized;
+    const feedback = `<span class="option-feedback" data-option-feedback="${escapeHtml(option.label)}" ${showFeedback ? "" : "hidden"}><strong>${correct ? "Correta" : "Incorreta"}:</strong> ${escapeHtml(question.feedback?.[option.label] || "Justificativa não informada no documento.")}</span>`;
     return `<button class="option-item${stateClass}" type="button" data-option="${escapeHtml(option.label)}" aria-label="Alternativa ${escapeHtml(option.label)}: ${escapeHtml(option.text)}" aria-pressed="${chosen}">
       <span class="option-letter">${escapeHtml(option.label)}</span>
       <span class="option-copy"><span>Alternativa ${escapeHtml(option.label)}: ${escapeHtml(option.text)}</span>${feedback}</span>
@@ -34,7 +34,7 @@ export function renderStudyQuestionMarkup(question, index, options = {}) {
 function progressFor(quiz, state) {
   const answers = { ...state.answers };
   const answered = Object.keys(answers).length;
-  const correct = Object.entries(answers).filter(([id, answer]) => quiz.questions.find(question => question.id === id)?.correctOption === answer).length;
+  const correct = quiz.questions.filter(question => answers[question.id] === question.correctOption).length;
   return { answers, answered, correct, finalized: Boolean(state.finalized), selectedQuestion: state.selectedQuestion };
 }
 
@@ -104,7 +104,7 @@ export function renderStudyView(container, store, library) {
       queueMicrotask(() => container.querySelector(`[data-option="${label}"]`)?.focus());
     });
   }
-  for (const button of container.querySelectorAll("[data-question-index]")) button.addEventListener("click", () => void publishProgress(store, library, { selectedQuestion: Number(button.dataset.questionIndex) }));
+  for (const button of container.querySelectorAll("button[data-question-index]")) button.addEventListener("click", () => void publishProgress(store, library, { selectedQuestion: Number(button.dataset.questionIndex) }));
   container.querySelector("#previous-question")?.addEventListener("click", () => void publishProgress(store, library, { selectedQuestion: selectedIndex - 1 }));
   container.querySelector("#clear-answer")?.addEventListener("click", () => { const answers = { ...store.getState().answers }; delete answers[question.id]; void publishProgress(store, library, { answers }); });
   container.querySelector("#next-question")?.addEventListener("click", () => void publishProgress(store, library, { selectedQuestion: selectedIndex + 1 }));

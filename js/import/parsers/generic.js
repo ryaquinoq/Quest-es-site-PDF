@@ -63,7 +63,8 @@ function parseQuestion(header, block) {
     ? clean(block.slice(explanationMatch.index + explanationMatch[0].length, explanationEnd))
     : "";
   const correctOption = (answerMatch?.[1] || "").toUpperCase();
-  const fields = Array.from(block.matchAll(/^(Justificativa [A-E]|Fonte(?: no material)?|Ponto-chave|Tema|Dificuldade)\s*:\s*(.*(?:\n(?![\wÀ-ÿ -]+:).*)*)/gimu));
+  const markers = Array.from(block.matchAll(/^[ \t]*(Justificativa [A-E]|Fonte(?: no material)?|Ponto-chave(?: para revis[aã]o)?|Tema|Dificuldade|Take home message|Resposta(?: correta)?|Explica[cç][aã]o|Coment[aá]rio|Feedback)[ \t]*:[ \t]*/gimu));
+  const fields = markers.map((marker, index) => [marker[0], marker[1], clean(block.slice(marker.index + marker[0].length, markers[index + 1]?.index ?? block.length))]);
   const feedback = Object.fromEntries(fields.filter(m => /^Justificativa/i.test(m[1])).map(m => [m[1].slice(-1).toUpperCase(), clean(m[2])]));
 
   return {
@@ -72,10 +73,11 @@ function parseQuestion(header, block) {
     options,
     correctOption,
     sourceReference: fields.find(m => /^Fonte/i.test(m[1]))?.[2]?.trim() || "",
+    topic: fields.find(m => /^Tema$/i.test(m[1]))?.[2] || "",
+    difficulty: fields.find(m => /^Dificuldade$/i.test(m[1]))?.[2] || "",
+    keyPoint: fields.find(m => /^Ponto-chave/i.test(m[1]))?.[2] || "",
     feedback: Object.keys(feedback).length ? feedback : correctOption && explanation ? { [correctOption]: explanation } : {},
-    takeHome: takeHomeMatch
-      ? clean(block.slice(takeHomeMatch.index + takeHomeMatch[0].length))
-      : ""
+    takeHome: fields.find(m => /^Take home message$/i.test(m[1]))?.[2] || ""
   };
 }
 

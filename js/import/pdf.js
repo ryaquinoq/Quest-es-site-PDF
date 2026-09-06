@@ -66,9 +66,8 @@ export function reconstructPageText(items) {
   const lines = [];
 
   for (const positionedItem of positioned) {
-    const line = lines.find(candidate => (
-      Math.abs(candidate.y - positionedItem.y) <= LINE_Y_TOLERANCE
-    ));
+    const lastLine = lines.at(-1);
+    const line = lastLine && Math.abs(lastLine.y - positionedItem.y) <= LINE_Y_TOLERANCE ? lastLine : null;
 
     if (line) {
       line.items.push(positionedItem.item);
