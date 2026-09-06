@@ -4,6 +4,7 @@
 @import url("styles/refinements.css");
 @import url("styles/academic.css");
 @import url("styles/medical-art.css");
+@import url("styles/polish.css");
 
 .stethoscope-art {
   background: url("assets/stethoscope-transparent.png") center / contain no-repeat;
