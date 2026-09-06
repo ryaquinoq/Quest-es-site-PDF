@@ -243,12 +243,12 @@ export function renderImportView(container, store, library) {
   const progress = importDraft.progress;
 
   container.innerHTML = `
+    <div class="glass-card import-panel">
     <div class="import-intro">
       <div><p class="section-kicker">Fluxo NotebookLM + Google Docs</p><h2>Transforme material médico em estudo ativo</h2>
       <p>Importe PDF, texto, Markdown ou JSON. Todo o processamento acontece localmente.</p></div>
       <button class="btn btn-secondary" type="button" id="open-prompt">Abrir Prompt Supremo</button>
     </div>
-    <div class="glass-card import-panel">
       <div class="dropzone-container" style="margin-top: 20px;">
         <div class="upload-box" id="dropzone" tabindex="0" role="button">
           <input
@@ -257,8 +257,10 @@ export function renderImportView(container, store, library) {
             accept=".pdf,.txt,.md,.json,application/pdf,text/plain,text/markdown,application/json"
             hidden
           >
+          <span class="upload-emblem" aria-hidden="true">↥</span>
           <h3>Selecionar arquivo</h3>
           <p>PDF, TXT, Markdown ou MedUp JSON</p>
+          <span class="btn btn-primary upload-cta" aria-hidden="true">Escolher arquivo</span>
           ${importDraft.sourceName ? `<p><strong>${escapeHtml(importDraft.sourceName)}</strong></p>` : ""}
         </div>
         <div class="paste-box">
@@ -278,6 +280,12 @@ export function renderImportView(container, store, library) {
           ${progress ? `Lendo página ${progress.current} de ${progress.total}` : "Lendo arquivo..."}
         </div>` : ""}
       ${importDraft.error ? `<p role="alert">${escapeHtml(importDraft.error)}</p>` : ""}
+    </div>
+    <div class="benefits-strip" aria-label="Recursos MedUp">
+      <div><span class="benefit-symbol" aria-hidden="true">◇</span><strong>Processamento local<small>Sua privacidade em primeiro lugar</small></strong></div>
+      <div><span class="benefit-symbol" aria-hidden="true">▤</span><strong>Múltiplos formatos<small>PDF, TXT, Markdown e JSON</small></strong></div>
+      <div><span class="benefit-symbol" aria-hidden="true">▱</span><strong>Organização automática<small>Questões prontas para revisar</small></strong></div>
+      <div><span class="benefit-symbol" aria-hidden="true">▥</span><strong>Estudo mais eficiente<small>Do material à performance</small></strong></div>
     </div>
     ${renderReview(importResult, importDraft.excludedQuestionIds)}
     <dialog class="prompt-dialog" id="prompt-dialog" aria-labelledby="prompt-dialog-title">
