@@ -35,6 +35,7 @@ function joinLine(items) {
   let text = "";
   let previousEnd = null;
   let previousFontSize = 1;
+  let previousSpace = false;
 
   for (const item of items) {
     const value = String(item?.str || "").replace(/\s+/g, " ").trim();
@@ -47,10 +48,11 @@ function joinLine(items) {
       Math.min(previousFontSize, fontSize) * 0.2
     );
 
-    if (text && gap > gapThreshold && !text.endsWith(" ")) text += " ";
+    if (text && (previousSpace || /^\s/.test(item.str) || gap > gapThreshold) && !text.endsWith(" ")) text += " ";
     text += value;
     previousEnd = x + itemWidth(item, value, fontSize);
     previousFontSize = fontSize;
+    previousSpace = /\s$/.test(item.str);
   }
 
   return text;
@@ -108,6 +110,7 @@ export async function extractPdf(file, onProgress = () => {}, pdfjsRuntime) {
       onProgress(pageNumber, pdf.numPages);
     }
 
+    if (!pages.some(text => text.trim())) throw new Error("Este PDF não contém texto selecionável. Cole o texto original do NotebookLM ou envie o arquivo Markdown (.md).");
     return {
       text: pages.map((pageText, index) => (
         index === 0

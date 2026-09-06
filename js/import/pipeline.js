@@ -20,7 +20,20 @@ export function importQuiz(rawText, options = {}) {
   const detection = options.format
     ? { format: options.format, confidence: 1, reasons: ["manual"] }
     : detectFormat(normalized);
-  const adapter = adapters[detection.format];
+  let adapter = adapters[detection.format];
+  let best;
+  if (!options.format && detection.format !== "json") {
+    for (const [format, candidate] of Object.entries(adapters)) {
+      if (format === "json") continue;
+      const result = validateQuiz(candidate.parse(normalized));
+      const usable = result.diagnostics.filter(item => item.status !== "blocked").length;
+      const score = usable * 1000 + result.quiz.questions.filter(q => q.options.length >= 2 && q.prompt).length + (format === detection.format ? 0.1 : 0);
+      if (!best || score > best.score) best = { result, score, format };
+    }
+    if (best?.score > 0) return {
+      ...best.result, detectedFormat: best.format, confidence: detection.confidence, sourceText
+    };
+  }
 
   if (!adapter) {
     return {

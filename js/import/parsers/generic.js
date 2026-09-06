@@ -1,8 +1,8 @@
-const ANSWER_KEY_HEADER = /^\s*(?:#{1,6}\s*)?GABARITO\s*:?\s*$/imu;
+const ANSWER_KEY_HEADER = /^\s*(?:#{1,6}\s*)?GABARITO(?:\s+(?:COMENTADO|FINAL|E FEEDBACK DETALHADO))?\s*:?\s*$/imu;
 const QUESTION_HEADER = /^\s{0,3}(?:#{1,6}\s*)?(?:(?:Quest[aã]o\s+)(\d+)(?:\s*[.)])?|(\d+)\s*[.)])(?:\s*(?:[-—–:]\s*)?(.*))?$/gimu;
 const OPTION_MARKER = /^\s*(?:Alternativa\s+)?([A-E])\s*(?:[).:]|[-—–])\s+/gimu;
-const INLINE_ANSWER = /^\s*(?:Resposta(?:\s+correta)?|Gabarito)\s*:\s*([A-E])\b.*$/imu;
-const EXPLANATION = /^\s*(?:Explica[cç][aã]o|Justificativa)\s*:\s*/imu;
+const INLINE_ANSWER = /^\s*(?:Resposta(?:\s+correta)?|Gabarito|Alternativa correta)\s*[:\-–—]\s*(?:alternativa\s+|letra\s+)?\(?([A-E])\b.*$/imu;
+const EXPLANATION = /^\s*(?:Explica[cç][aã]o|Justificativa|Coment[aá]rio|Feedback)(?:\s+[A-E])?\s*:\s*/imu;
 const TAKE_HOME = /^\s*Take\s*home\s*message\s*:\s*/imu;
 
 function clean(value) {
@@ -63,13 +63,15 @@ function parseQuestion(header, block) {
     ? clean(block.slice(explanationMatch.index + explanationMatch[0].length, explanationEnd))
     : "";
   const correctOption = (answerMatch?.[1] || "").toUpperCase();
+  const fields = Array.from(block.matchAll(/^(Justificativa [A-E]|Fonte(?: no material)?|Ponto-chave|Tema|Dificuldade)\s*:\s*(.*(?:\n(?![\wÀ-ÿ -]+:).*)*)/gimu));
+  const feedback = Object.fromEntries(fields.filter(m => /^Justificativa/i.test(m[1])).map(m => [m[1].slice(-1).toUpperCase(), clean(m[2])]));
 
   return {
     number: header.number,
     prompt: promptParts.join("\n"),
     options,
     correctOption,
-    feedback: correctOption && explanation ? { [correctOption]: explanation } : {},
+    feedback: Object.keys(feedback).length ? feedback : correctOption && explanation ? { [correctOption]: explanation } : {},
     takeHome: takeHomeMatch
       ? clean(block.slice(takeHomeMatch.index + takeHomeMatch[0].length))
       : ""
