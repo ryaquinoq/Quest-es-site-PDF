@@ -4,3 +4,9 @@
 @import url("styles/refinements.css");
 @import url("styles/academic.css");
 @import url("styles/medical-art.css");
+
+.stethoscope-art {
+  background: url("assets/stethoscope-transparent.png") center / contain no-repeat;
+  mask-image: none;
+  mix-blend-mode: normal;
+}
