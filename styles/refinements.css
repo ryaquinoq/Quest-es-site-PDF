@@ -1,0 +1,22 @@
+/* Shared workspace surfaces and reading rhythm. */
+h1{font-size:30px;font-weight:500}h2{font-size:24px;font-weight:500}
+.institutional-ribbon{background:#fff;color:#78827d;border-bottom:1px solid #e7eae8;font-size:10px;font-weight:500}
+.app-sidebar{background:#fff;color:var(--color-ink);border-right:1px solid #e2e7e4;padding:32px 20px;gap:44px}
+.brand-mark{background:#086448;color:white;border-radius:12px}
+.brand-copy strong{font-size:28px}.brand-copy span,.privacy-note{color:#78827d}
+.nav-item{color:#616d66;font-size:14px;font-weight:550;min-height:48px;transition:background .15s,color .15s}
+.nav-item.active{background:#e8f1ed;color:#086448;font-weight:700}.nav-item:hover:not(.active){background:#f5f6f7}
+.nav-index{color:#8b9891}.workspace-header{background:transparent;border-bottom:1px solid #e2e7e4;min-height:120px}
+.workspace-eyebrow,.section-kicker{color:#7b8780;font-size:10px;font-weight:600;margin-bottom:8px}
+.workspace-status{border:1px solid #e2e7e4;border-radius:30px;padding:8px 12px;background:white}
+.workspace-main{padding-top:36px}.import-panel{border-top:1px solid var(--color-line)}
+.upload-box{border-width:1px;background:#f7faf9;min-height:280px}.upload-box h3{font-size:18px;font-weight:600}.upload-box p{font-size:13px;color:var(--color-muted)}
+.textarea-input{min-height:280px;font-size:14px;line-height:1.65;background:#fff}
+.btn{font-size:13px;font-weight:600;min-height:44px;padding:11px 18px;transition:background .15s,box-shadow .15s}.btn-primary{box-shadow:0 2px 4px #08644818}
+.question-paper{border-top:1px solid var(--color-line);padding:32px}.question-paper h2{font-size:28px;margin-bottom:24px}
+.question-prompt{line-height:1.8;font-size:16px}.question-meta span{border:0;background:#f1f4f3;padding:6px 10px}
+.option-item{padding:16px;gap:16px}.option-copy{min-width:0;overflow-wrap:anywhere;line-height:1.65;font-size:15px}.option-feedback{border-top:1px solid #dce6df;padding-top:10px;line-height:1.7}
+.metrics-strip{border:0;background:transparent;padding:0 0 16px;min-height:44px;border-radius:0;border-bottom:1px solid #e2e7e4}
+.question-map>strong{display:block;font-size:13px;font-weight:600;line-height:1.65;overflow-wrap:anywhere}.take-home{background:#f4f5f0;font-size:14px;line-height:1.7}
+.empty-state{background:transparent;border:0;box-shadow:none}.export-tile{border-radius:16px}.form-input:focus,.textarea-input:focus{border-color:#086448}
+@media(max-width:820px){.app-sidebar{padding:16px;gap:18px}.workspace-header{min-height:100px}.workspace-main{padding-top:24px}.question-paper{padding:20px}.brand-copy strong{font-size:24px}.nav-item{min-height:40px}.question-prompt{font-size:15px}h1{font-size:27px}.upload-box{min-height:180px}}
