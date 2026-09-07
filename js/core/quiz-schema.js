@@ -23,6 +23,22 @@ function boundedInteger(value, minimum, maximum) {
   return Math.min(Math.max(number, minimum), maximum);
 }
 
+function isoTimestamp(value) {
+  const text = typeof value === "string" ? value : "";
+  return /^\d{4}-\d{2}-\d{2}T/.test(text) && !Number.isNaN(Date.parse(text))
+    ? text
+    : "";
+}
+
+function existingUniqueIds(value, questionIds) {
+  const seen = new Set();
+  return toList(value).map(id => String(id)).filter(id => {
+    if (!questionIds.has(id) || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
 export function createProgress(input = {}, questions = []) {
   const source = input && typeof input === "object" ? input : {};
   const rawAnswers = source.answers && typeof source.answers === "object"
@@ -54,6 +70,52 @@ export function createProgress(input = {}, questions = []) {
     correct,
     finalized: Boolean(source.finalized),
     selectedQuestion: boundedInteger(source.selectedQuestion, 0, Math.max(questions.length - 1, 0))
+  };
+}
+
+export function createStudy(input = {}, questions = []) {
+  const source = input && typeof input === "object" && !Array.isArray(input)
+    ? input
+    : {};
+  const questionIds = new Set(questions.map(question => question.id));
+  const reviewSource = source.errorReview;
+  let errorReview = null;
+
+  if (reviewSource && typeof reviewSource === "object" && !Array.isArray(reviewSource)) {
+    const reviewQuestionIds = existingUniqueIds(reviewSource.questionIds, questionIds);
+    const reviewIdSet = new Set(reviewQuestionIds);
+    const rawAnswers = reviewSource.answers && typeof reviewSource.answers === "object"
+      && !Array.isArray(reviewSource.answers)
+      ? reviewSource.answers
+      : {};
+    const answers = {};
+
+    for (const question of questions) {
+      if (!reviewIdSet.has(question.id)) continue;
+      const answer = normalizeLabel(rawAnswers[question.id]);
+      if (question.options.some(option => option.label === answer)) {
+        answers[question.id] = answer;
+      }
+    }
+
+    errorReview = {
+      questionIds: reviewQuestionIds,
+      answers,
+      selectedQuestion: boundedInteger(
+        reviewSource.selectedQuestion,
+        0,
+        Math.max(reviewQuestionIds.length - 1, 0)
+      ),
+      finalized: Boolean(reviewSource.finalized),
+      updatedAt: isoTimestamp(reviewSource.updatedAt)
+    };
+  }
+
+  return {
+    lastStudiedAt: isoTimestamp(source.lastStudiedAt),
+    bookmarkedQuestionIds: existingUniqueIds(source.bookmarkedQuestionIds, questionIds),
+    doubtQuestionIds: existingUniqueIds(source.doubtQuestionIds, questionIds),
+    errorReview
   };
 }
 
@@ -135,7 +197,8 @@ export function createQuiz(input = {}) {
     themes: toList(input.themes || input.metadata?.themes),
     distribution: toList(input.distribution || input.metadata?.distribution),
     questions,
-    progress: createProgress(input.progress, questions)
+    progress: createProgress(input.progress, questions),
+    study: createStudy(input.study, questions)
   };
 }
 

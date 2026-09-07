@@ -62,6 +62,51 @@ function openingIndexedDb(sequence) {
   };
 }
 
+function restoreDatabase(initialRecords = []) {
+  const records = new Map(initialRecords.map(item => [item.id, structuredClone(item)]));
+  const transactions = [];
+
+  return {
+    records,
+    transactions,
+    transaction(storeName, mode) {
+      const transaction = eventTarget({ error: null });
+      let pending = 0;
+      let completionQueued = false;
+      transactions.push({ storeName, mode });
+
+      const completeWhenIdle = () => {
+        if (pending || completionQueued) return;
+        completionQueued = true;
+        queueMicrotask(() => {
+          if (!pending) transaction.dispatchEvent(new Event("complete"));
+          else completionQueued = false;
+        });
+      };
+      const request = action => {
+        const result = eventTarget({ error: null, result: undefined });
+        pending += 1;
+        queueMicrotask(() => {
+          result.result = action();
+          pending -= 1;
+          result.dispatchEvent(new Event("success"));
+          completeWhenIdle();
+        });
+        return result;
+      };
+
+      transaction.objectStore = () => ({
+        getAllKeys: () => request(() => [...records.keys()]),
+        put: value => request(() => {
+          records.set(value.id, structuredClone(value));
+          return value.id;
+        })
+      });
+      return transaction;
+    }
+  };
+}
+
 test("stores canonical quizzes and lists the most recently updated first", async () => {
   const repository = createQuizLibrary(memoryAdapter());
   await repository.put(quiz());
@@ -215,4 +260,83 @@ test("legacy migration remains idempotent when localStorage cleanup fails", asyn
   assert.equal(second.id, first.id);
   assert.equal(second.title, "Edição mais nova");
   assert.equal((await reloadedRepository.list()).length, 1);
+});
+
+test("memory restore preserves or replaces conflicts and reports counts", async () => {
+  const preservedAdapter = memoryAdapter([quiz({ title: "Original" })]);
+  const incoming = [
+    quiz({ title: "Substituto" }),
+    quiz({ id: "quiz-2", title: "Novo" })
+  ];
+
+  assert.deepEqual(await preservedAdapter.restore(incoming, "preserve"), {
+    added: 1,
+    replaced: 0,
+    skipped: 1
+  });
+  assert.equal((await preservedAdapter.get("quiz-1")).title, "Original");
+  assert.equal((await preservedAdapter.get("quiz-2")).title, "Novo");
+
+  const replacedAdapter = memoryAdapter([quiz({ title: "Original" })]);
+  assert.deepEqual(await replacedAdapter.restore(incoming, "replace"), {
+    added: 1,
+    replaced: 1,
+    skipped: 0
+  });
+  assert.equal((await replacedAdapter.get("quiz-1")).title, "Substituto");
+});
+
+test("memory restore rolls back every record when an operation fails", async () => {
+  const original = quiz({ title: "Original" });
+  const adapter = memoryAdapter([original]);
+  const failing = quiz({ id: "quiz-3", title: "Falha" });
+  Object.defineProperty(failing, "title", {
+    enumerable: true,
+    get() { throw new Error("falha deliberada"); }
+  });
+
+  await assert.rejects(
+    adapter.restore([quiz({ id: "quiz-2", title: "Novo" }), failing], "replace"),
+    /falha deliberada/
+  );
+  assert.deepEqual(await adapter.list(), [original]);
+});
+
+test("library normalizes every quiz before delegating restore", async () => {
+  let received;
+  const repository = createQuizLibrary({
+    async restore(quizzes, mode) {
+      received = { quizzes, mode };
+      return { added: quizzes.length, replaced: 0, skipped: 0 };
+    }
+  });
+
+  const result = await repository.restore([{
+    id: "raw-quiz",
+    title: "Bruto",
+    questions: [{ id: "q-1", options: { a: "Um", b: "Dois" } }],
+    study: { bookmarkedQuestionIds: ["q-1", "missing"] }
+  }], "preserve");
+
+  assert.deepEqual(result, { added: 1, replaced: 0, skipped: 0 });
+  assert.equal(received.mode, "preserve");
+  assert.equal(received.quizzes[0].schemaVersion, 2);
+  assert.deepEqual(received.quizzes[0].questions[0].options.map(option => option.label), ["A", "B"]);
+  assert.deepEqual(received.quizzes[0].study.bookmarkedQuestionIds, ["q-1"]);
+});
+
+test("IndexedDB restore uses one readwrite transaction", async () => {
+  const original = quiz({ title: "Original" });
+  const database = restoreDatabase([original]);
+  const adapter = indexedDbAdapter(openingIndexedDb([database]));
+
+  const result = await adapter.restore([
+    quiz({ title: "Substituto" }),
+    quiz({ id: "quiz-2", title: "Novo" })
+  ], "preserve");
+
+  assert.deepEqual(result, { added: 1, replaced: 0, skipped: 1 });
+  assert.deepEqual(database.transactions, [{ storeName: "quizzes", mode: "readwrite" }]);
+  assert.equal(database.records.get("quiz-1").title, "Original");
+  assert.equal(database.records.get("quiz-2").title, "Novo");
 });

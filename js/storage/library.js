@@ -37,6 +37,11 @@ function normalizeQuiz(input) {
   return migrateQuiz(input);
 }
 
+function restoreMode(mode) {
+  if (mode === "preserve" || mode === "replace") return mode;
+  throw new TypeError('O modo de restauração deve ser "preserve" ou "replace".');
+}
+
 function legacyQuizId(serialized) {
   let hash = 2166136261;
   for (let index = 0; index < serialized.length; index += 1) {
@@ -71,6 +76,31 @@ export function memoryAdapter(initialQuizzes = []) {
     },
     async remove(id) {
       records.delete(id);
+    },
+    async restore(quizzes, mode) {
+      const selectedMode = restoreMode(mode);
+      const snapshot = new Map([...records].map(([id, value]) => [id, clone(value)]));
+      const counts = { added: 0, replaced: 0, skipped: 0 };
+
+      try {
+        for (const quiz of quizzes) {
+          const exists = records.has(quiz.id);
+          if (exists && selectedMode === "preserve") {
+            counts.skipped += 1;
+            continue;
+          }
+
+          const saved = clone(quiz);
+          records.set(saved.id, saved);
+          if (exists) counts.replaced += 1;
+          else counts.added += 1;
+        }
+        return counts;
+      } catch (error) {
+        records.clear();
+        for (const [id, value] of snapshot) records.set(id, value);
+        throw error;
+      }
     }
   };
 }
@@ -95,6 +125,20 @@ function transactionResult(transaction, request) {
     request.addEventListener("success", () => { result = request.result; }, { once: true });
     request.addEventListener("error", fail, { once: true });
     transaction.addEventListener("complete", () => resolve(result), { once: true });
+    transaction.addEventListener("abort", fail, { once: true });
+    transaction.addEventListener("error", fail, { once: true });
+  });
+}
+
+function transactionCompletion(transaction) {
+  return new Promise((resolve, reject) => {
+    const fail = event => reject(
+      transaction.error ||
+      event?.target?.error ||
+      event?.error ||
+      new Error("IndexedDB transaction failed")
+    );
+    transaction.addEventListener("complete", () => resolve(), { once: true });
     transaction.addEventListener("abort", fail, { once: true });
     transaction.addEventListener("error", fail, { once: true });
   });
@@ -162,6 +206,37 @@ export function indexedDbAdapter(indexedDB = globalThis.indexedDB) {
       const transaction = db.transaction(QUIZ_STORE, "readwrite");
       const request = transaction.objectStore(QUIZ_STORE).delete(id);
       await transactionResult(transaction, request);
+    },
+    async restore(quizzes, mode) {
+      const selectedMode = restoreMode(mode);
+      const db = await database();
+      const transaction = db.transaction(QUIZ_STORE, "readwrite");
+      const completion = transactionCompletion(transaction);
+      const store = transaction.objectStore(QUIZ_STORE);
+      const counts = { added: 0, replaced: 0, skipped: 0 };
+
+      try {
+        const existingIds = new Set(await requestResult(store.getAllKeys()));
+        const writes = [];
+        for (const quiz of quizzes) {
+          const exists = existingIds.has(quiz.id);
+          if (exists && selectedMode === "preserve") {
+            counts.skipped += 1;
+            continue;
+          }
+
+          writes.push(requestResult(store.put(clone(quiz))));
+          if (exists) counts.replaced += 1;
+          else counts.added += 1;
+        }
+        await Promise.all(writes);
+        await completion;
+        return counts;
+      } catch (error) {
+        try { transaction.abort(); } catch {}
+        await completion.catch(() => {});
+        throw error;
+      }
     }
   };
 }
@@ -199,6 +274,14 @@ export function createQuizLibrary(adapter = indexedDbAdapter()) {
     },
     remove(id) {
       return repositoryCall(() => adapter.remove(String(id)));
+    },
+    restore(inputs, mode) {
+      if (!Array.isArray(inputs)) {
+        throw new TypeError("A restauração exige uma lista de simulados.");
+      }
+      const selectedMode = restoreMode(mode);
+      const quizzes = inputs.map(normalizeQuiz);
+      return repositoryCall(() => adapter.restore(quizzes, selectedMode));
     },
     async importLegacy(localStorage = globalThis.localStorage) {
       let serialized;

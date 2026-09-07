@@ -59,6 +59,54 @@ test("createQuiz preserves normalized study progress", () => {
   });
 });
 
+test("createQuiz gives old quizzes safe study defaults", () => {
+  const quiz = createQuiz({
+    id: "legacy-quiz",
+    questions: [{ id: "q-1", options: { A: "Um", B: "Dois" } }]
+  });
+
+  assert.deepEqual(quiz.study, {
+    lastStudiedAt: "",
+    bookmarkedQuestionIds: [],
+    doubtQuestionIds: [],
+    errorReview: null
+  });
+});
+
+test("createQuiz removes stale study IDs and invalid review answers", () => {
+  const quiz = createQuiz({
+    questions: [
+      { id: "q-1", options: { A: "Um", B: "Dois" }, correctOption: "A" },
+      { id: "q-2", options: { A: "Um", B: "Dois" }, correctOption: "B" }
+    ],
+    study: {
+      lastStudiedAt: "2026-09-07T12:30:00.000Z",
+      bookmarkedQuestionIds: ["q-1", "missing", "q-1"],
+      doubtQuestionIds: ["missing", "q-2", "q-2"],
+      errorReview: {
+        questionIds: ["q-2", "missing", "q-2", "q-1"],
+        answers: { "q-1": "a", "q-2": "X", missing: "B" },
+        selectedQuestion: 99,
+        finalized: true,
+        updatedAt: "2026-09-07T12:45:00.000Z"
+      }
+    }
+  });
+
+  assert.deepEqual(quiz.study, {
+    lastStudiedAt: "2026-09-07T12:30:00.000Z",
+    bookmarkedQuestionIds: ["q-1"],
+    doubtQuestionIds: ["q-2"],
+    errorReview: {
+      questionIds: ["q-2", "q-1"],
+      answers: { "q-1": "A" },
+      selectedQuestion: 1,
+      finalized: true,
+      updatedAt: "2026-09-07T12:45:00.000Z"
+    }
+  });
+});
+
 test("createQuestion normalizes array options and legacy answer feedback", () => {
   const question = createQuestion({
     number: 7,
