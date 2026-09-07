@@ -244,10 +244,13 @@ export function indexedDbAdapter(indexedDB = globalThis.indexedDB) {
 export function createQuizLibrary(adapter = indexedDbAdapter()) {
   return {
     list() {
-      return repositoryCall(() => adapter.list());
+      return repositoryCall(async () => (await adapter.list()).map(normalizeQuiz));
     },
     get(id) {
-      return repositoryCall(() => adapter.get(String(id)));
+      return repositoryCall(async () => {
+        const quiz = await adapter.get(String(id));
+        return quiz ? normalizeQuiz(quiz) : null;
+      });
     },
     async put(input) {
       const quiz = normalizeQuiz(input);

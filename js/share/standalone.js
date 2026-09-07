@@ -1,4 +1,5 @@
 import { escapeHtml, renderStudyQuestionMarkup } from "../ui/views/study-view.js";
+import { createShareableQuiz } from "./shareable-quiz.js";
 
 function embeddedJson(value) {
   return JSON.stringify(value)
@@ -8,7 +9,8 @@ function embeddedJson(value) {
 }
 
 export function generateStandaloneHtml(quiz) {
-  const questions = quiz.questions || [];
+  const sharedQuiz = createShareableQuiz(quiz);
+  const questions = sharedQuiz.questions;
   const questionMarkup = questions.map((question, index) => (
     renderStudyQuestionMarkup(question, index, { hidden: index > 0 })
   )).join("");
@@ -23,7 +25,7 @@ export function generateStandaloneHtml(quiz) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
-  <title>${escapeHtml(quiz.title)} - MedUp</title>
+  <title>${escapeHtml(sharedQuiz.title)} - MedUp</title>
   <style>
     :root { color-scheme: light; font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; color: #17231e; background: #f2f4ef; }
     * { box-sizing: border-box; }
@@ -72,8 +74,8 @@ export function generateStandaloneHtml(quiz) {
 </head>
 <body>
   <header>
-    <h1>${escapeHtml(quiz.title)}</h1>
-    <p>${escapeHtml(quiz.introduction || `${questions.length} questões para estudo offline`)}</p>
+    <h1>${escapeHtml(sharedQuiz.title)}</h1>
+    <p>${escapeHtml(sharedQuiz.introduction || `${questions.length} questões para estudo offline`)}</p>
   </header>
   <div class="layout">
     <nav aria-label="Questões">${navigation}</nav>
@@ -93,7 +95,7 @@ export function generateStandaloneHtml(quiz) {
       </section>
     </main>
   </div>
-  <script type="application/json" id="quiz-data" data-schema-version="${escapeHtml(quiz.schemaVersion)}">${embeddedJson(quiz)}</script>
+  <script type="application/json" id="quiz-data" data-schema-version="${escapeHtml(sharedQuiz.schemaVersion)}">${embeddedJson(sharedQuiz)}</script>
   <script>
     (() => {
       "use strict";

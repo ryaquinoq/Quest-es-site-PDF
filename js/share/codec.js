@@ -1,3 +1,5 @@
+import { createShareableQuiz } from "./shareable-quiz.js";
+
 export const MAX_SHARE_URL_LENGTH = 12_000;
 export const MAX_DECOMPRESSED_BYTES = 2 * 1024 * 1024;
 export const SHARE_FALLBACK_MESSAGE =
@@ -86,7 +88,7 @@ export async function encodeQuizFragment(quiz) {
   if (typeof CompressionStream !== "function") {
     throw new Error("Compressão nativa indisponível.");
   }
-  const json = JSON.stringify(quiz);
+  const json = JSON.stringify(createShareableQuiz(quiz));
   const compressed = await transformBytes(
     new TextEncoder().encode(json),
     new CompressionStream("deflate-raw")

@@ -262,6 +262,48 @@ test("legacy migration remains idempotent when localStorage cleanup fails", asyn
   assert.equal((await reloadedRepository.list()).length, 1);
 });
 
+test("list and get normalize legacy adapter records while preserving progress", async () => {
+  const legacy = {
+    id: "legacy-record",
+    title: "Legado",
+    createdAt: "2026-09-01T10:00:00.000Z",
+    updatedAt: "2026-09-02T10:00:00.000Z",
+    questions: [{
+      id: "q-1",
+      prompt: "Caso",
+      options: { A: "Um", B: "Dois" },
+      correctOption: "A"
+    }],
+    progress: {
+      answers: { "q-1": "B" },
+      answered: 1,
+      correct: 0,
+      finalized: true,
+      selectedQuestion: 0
+    }
+  };
+  const repository = createQuizLibrary(memoryAdapter([legacy]));
+
+  const listed = (await repository.list())[0];
+  const loaded = await repository.get("legacy-record");
+
+  for (const quiz of [listed, loaded]) {
+    assert.deepEqual(quiz.study, {
+      lastStudiedAt: "",
+      bookmarkedQuestionIds: [],
+      doubtQuestionIds: [],
+      errorReview: null
+    });
+    assert.deepEqual(quiz.progress, {
+      answers: { "q-1": "B" },
+      answered: 1,
+      correct: 0,
+      finalized: true,
+      selectedQuestion: 0
+    });
+  }
+});
+
 test("memory restore preserves or replaces conflicts and reports counts", async () => {
   const preservedAdapter = memoryAdapter([quiz({ title: "Original" })]);
   const incoming = [

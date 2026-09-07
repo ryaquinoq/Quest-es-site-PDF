@@ -12,23 +12,40 @@ import {
   getShareDecision
 } from "../../js/share/codec.js";
 
-test("compressed fragment round trips Unicode quiz data as base64url", async () => {
+test("compressed fragment shares Unicode quiz content without local personal metadata", async () => {
   const quiz = createQuiz({
     id: "quiz-unicode",
     createdAt: "2026-09-03T12:00:00.000Z",
     updatedAt: "2026-09-03T12:00:00.000Z",
+    sourceName: "arquivo-pessoal.pdf",
     title: "Emergências",
     questions: [{
+      id: "q-1",
       prompt: "Dor torácica",
       options: { A: "Ação", B: "Observação" },
       correctOption: "A"
-    }]
+    }],
+    progress: { answers: { "q-1": "A" }, answered: 1, correct: 1 },
+    study: {
+      lastStudiedAt: "2026-09-07T12:00:00.000Z",
+      bookmarkedQuestionIds: ["q-1"],
+      doubtQuestionIds: ["q-1"]
+    }
   });
+  quiz.privateNote = "não compartilhar";
 
   const fragment = await encodeQuizFragment(quiz);
+  const shared = await decodeQuizFragment(fragment);
 
   assert.match(fragment, /^#quiz=v2\.[A-Za-z0-9_-]+$/);
-  assert.deepEqual(await decodeQuizFragment(fragment), quiz);
+  assert.deepEqual(shared, {
+    schemaVersion: 2,
+    title: "Emergências",
+    introduction: "",
+    themes: [],
+    distribution: [],
+    questions: quiz.questions
+  });
 });
 
 test("small quizzes produce a complete share URL below the policy limit", async () => {

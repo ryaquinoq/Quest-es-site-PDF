@@ -12,6 +12,11 @@ Implementação concluída no branch `publish-medup`, sem push e sem subagentes.
 - `tests/unit/quiz-schema.test.js`: defaults e descarte de IDs/respostas inválidos.
 - `tests/unit/backup.test.js`: round-trip, validação e preview de conflitos.
 - `tests/unit/library.test.js`: preserve/replace, rollback, normalização e transação IndexedDB única.
+- `js/share/shareable-quiz.js`: projeção acadêmica única que exclui metadados locais e pessoais.
+- `js/share/codec.js`: serialização de links pela projeção compartilhável.
+- `js/share/standalone.js`: renderização e JSON embutido pela mesma projeção compartilhável.
+- `tests/unit/share-codec.test.js`: comportamento de privacidade do payload de link.
+- `tests/unit/standalone.test.js`: comportamento de privacidade do JSON no HTML offline.
 - `.superpowers/sdd/2026-09-07-medup-local-learning/task-1-report.md`: este relatório.
 
 ## TDD Evidence
@@ -36,6 +41,27 @@ Implementação concluída no branch `publish-medup`, sem push e sem subagentes.
 - `npm test`: Exit 0; 90/90 testes unitários passaram, 0 falhas.
 - `git diff --check`: Exit 0; sem erros de whitespace.
 
+### Fix Round 1 - RED
+
+- `node --test tests/unit/share-codec.test.js tests/unit/standalone.test.js`
+  - Exit 1; 12 testes, 10 passaram e 2 falharam.
+  - Falha esperada: link e HTML ainda continham `study`, `progress`, IDs/timestamps locais, `sourceName` e um campo pessoal extra.
+- `node --test tests/unit/library.test.js`
+  - Exit 1; 13 testes, 12 passaram e 1 falhou.
+  - Falha esperada: `list/get` retornavam o registro legado sem defaults de `study`.
+- `node --test tests/unit/backup.test.js`
+  - Exit 1; 4 testes, 3 passaram e 1 falhou.
+  - Falha esperada: `parseBackup` aceitava IDs de questões duplicados e a canonicalização os renomeava silenciosamente.
+
+### Fix Round 1 - GREEN
+
+- `node --test tests/unit/share-codec.test.js tests/unit/standalone.test.js`: Exit 0; 12/12 passaram.
+- `node --test tests/unit/library.test.js`: Exit 0; 13/13 passaram.
+- `node --test tests/unit/backup.test.js`: Exit 0; 4/4 passaram.
+- `node --test tests/unit/share-codec.test.js tests/unit/standalone.test.js tests/unit/library.test.js tests/unit/backup.test.js`: Exit 0; 29/29 passaram.
+- `npm test`: Exit 0; 93/93 testes unitários passaram, 0 falhas.
+- `git diff --check`: Exit 0; sem erros de whitespace.
+
 ## Self-Review
 
 - `progress` não foi alterado; somente o campo irmão `study` foi acrescentado ao quiz canônico.
@@ -45,8 +71,12 @@ Implementação concluída no branch `publish-medup`, sem push e sem subagentes.
 - O adapter de memória restaura o snapshot completo em qualquer falha durante a operação.
 - O adapter IndexedDB consulta conflitos e grava todos os registros na mesma transação `readwrite`.
 - `createQuizLibrary.restore` normaliza toda a coleção antes de chamar o adapter e os métodos públicos anteriores foram preservados.
-- Nenhum arquivo de UI, parser, prompt, estilo, sharing ou E2E foi alterado.
+- `createQuizLibrary.list/get` normalizam registros legados na leitura e preservam o `progress` canônico.
+- A mesma whitelist compartilhável alimenta link e HTML; metadados locais/pessoais e campos desconhecidos não entram nos payloads.
+- IDs de questões duplicados são rejeitados pelo backup antes de qualquer canonicalização.
+- Fora da correção de privacidade em sharing, nenhum arquivo de UI, parser, prompt, estilo ou E2E foi alterado.
 
 ## Concerns
 
 - A atomicidade IndexedDB foi verificada em teste unitário com uma implementação controlada da API de transações. E2E não foi alterado nem executado, conforme o escopo da task.
+- A privacidade dos dois artefatos compartilháveis foi coberta por testes unitários de payload; a rodada não incluiu E2E.

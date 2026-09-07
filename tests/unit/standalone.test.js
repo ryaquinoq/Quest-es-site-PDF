@@ -22,6 +22,12 @@ function standaloneQuiz(overrides = {}) {
   });
 }
 
+function embeddedQuiz(html) {
+  const match = html.match(/<script type="application\/json" id="quiz-data"[^>]*>(.*?)<\/script>/su);
+  assert.ok(match, "standalone HTML should embed quiz JSON");
+  return JSON.parse(match[1]);
+}
+
 test("standalone HTML embeds a complete offline study player", () => {
   const html = generateStandaloneHtml(standaloneQuiz());
 
@@ -43,4 +49,28 @@ test("standalone HTML prevents embedded quiz data from closing its script", () =
 
   assert.match(html, /\\u003c\/script>/);
   assert.doesNotMatch(html, /<script>globalThis\.compromised/);
+});
+
+test("standalone HTML excludes local personal metadata from embedded quiz data", () => {
+  const quiz = standaloneQuiz({
+    sourceName: "arquivo-pessoal.pdf",
+    progress: { answers: { "q-1": "A" }, answered: 1, correct: 1 },
+    study: {
+      lastStudiedAt: "2026-09-07T12:00:00.000Z",
+      bookmarkedQuestionIds: ["q-1"],
+      doubtQuestionIds: ["q-1"]
+    }
+  });
+  quiz.privateNote = "não compartilhar";
+
+  const shared = embeddedQuiz(generateStandaloneHtml(quiz));
+
+  assert.deepEqual(shared, {
+    schemaVersion: 2,
+    title: "Emergências clínicas",
+    introduction: "Responda e revise.",
+    themes: [],
+    distribution: [],
+    questions: quiz.questions
+  });
 });

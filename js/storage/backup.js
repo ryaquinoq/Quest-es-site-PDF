@@ -31,13 +31,22 @@ function validateQuizCollection(quizzes) {
     if (!Array.isArray(quiz.questions)) {
       throw invalidBackup(`as questões do simulado ${quiz.id} devem ser uma lista.`);
     }
-    if (quiz.questions.some(question => (
-      !isRecord(question) ||
-      typeof question.id !== "string" ||
-      !question.id.trim() ||
-      !Array.isArray(question.options)
-    ))) {
-      throw invalidBackup(`o simulado ${quiz.id} contém uma questão malformada.`);
+    const questionIds = new Set();
+    for (const question of quiz.questions) {
+      if (
+        !isRecord(question) ||
+        typeof question.id !== "string" ||
+        !question.id.trim() ||
+        !Array.isArray(question.options)
+      ) {
+        throw invalidBackup(`o simulado ${quiz.id} contém uma questão malformada.`);
+      }
+      if (questionIds.has(question.id)) {
+        throw invalidBackup(
+          `o simulado ${quiz.id} contém identificador de questão duplicado: ${question.id}.`
+        );
+      }
+      questionIds.add(question.id);
     }
   }
 }

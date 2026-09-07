@@ -74,3 +74,20 @@ test("parseBackup previews incoming count and conflicting IDs", () => {
     conflictingIds: ["quiz-2"]
   });
 });
+
+test("parseBackup rejects duplicate question IDs before canonicalization", () => {
+  const backup = createBackup([canonicalQuiz({
+    questions: [
+      { id: "q-1", options: { A: "Um", B: "Dois" } },
+      { id: "q-2", options: { A: "Três", B: "Quatro" } }
+    ]
+  })]);
+  backup.quizzes[0].questions[1].id = "q-1";
+
+  assert.throws(
+    () => parseBackup(backup),
+    error => error instanceof Error &&
+      /^Backup inválido:/.test(error.message) &&
+      /identificador de questão duplicado/.test(error.message)
+  );
+});
