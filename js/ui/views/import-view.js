@@ -1,5 +1,6 @@
 import { extractPdf } from "../../import/pdf.js";
 import { importQuiz } from "../../import/pipeline.js";
+import { validateQuiz } from "../../import/validator.js";
 import { PROMPT_SUPREMO } from "../../prompt-supremo.js";
 
 const ACCEPTED_EXTENSIONS = new Set(["pdf", "txt", "md", "json"]);
@@ -39,8 +40,34 @@ function questionId(result, index) {
   return result.quiz.questions[index]?.id || `diagnostic-${index + 1}`;
 }
 
-function renderReview(result, excludedQuestionIds) {
+function renderQuestionEditor(result, index) {
+  const question = result.quiz.questions[index];
+  if (!question) return "";
+  return `<div class="import-question-editor" data-import-question-editor="${index}">
+    <div class="import-editor-grid">
+      <label class="form-group"><span class="form-label">Tema</span><input class="form-input" data-question-field="topic" value="${escapeHtml(question.topic)}"></label>
+      <label class="form-group"><span class="form-label">Dificuldade</span><input class="form-input" data-question-field="difficulty" value="${escapeHtml(question.difficulty)}"></label>
+    </div>
+    <label class="form-group"><span class="form-label">Enunciado</span><textarea class="form-textarea" data-question-field="prompt">${escapeHtml(question.prompt)}</textarea></label>
+    <fieldset class="import-options-editor"><legend>Alternativas, gabarito e justificativas</legend>
+      ${question.options.map((option, optionIndex) => `<div class="import-option-editor">
+        <label class="correct-choice"><input type="radio" name="correct-option-${index}" data-correct-option value="${escapeHtml(option.label)}" ${option.label === question.correctOption ? "checked" : ""}><span>${escapeHtml(option.label)}</span><small>Correta</small></label>
+        <label><span class="form-label">Texto da alternativa ${escapeHtml(option.label)}</span><textarea class="form-textarea" data-option-index="${optionIndex}" data-option-field="text">${escapeHtml(option.text)}</textarea></label>
+        <label><span class="form-label">Justificativa ${escapeHtml(option.label)}</span><textarea class="form-textarea" data-option-index="${optionIndex}" data-option-field="feedback">${escapeHtml(question.feedback?.[option.label] || "")}</textarea></label>
+      </div>`).join("")}
+    </fieldset>
+    <label class="form-group"><span class="form-label">Para levar</span><textarea class="form-textarea" data-question-field="takeHome">${escapeHtml(question.takeHome)}</textarea></label>
+    <p class="import-edit-hint">As alterações são revalidadas automaticamente ao sair de cada campo.</p>
+  </div>`;
+}
+
+function renderReview(result, importDraft) {
   if (!result) return "";
+
+  const excludedQuestionIds = importDraft.excludedQuestionIds;
+  const editingIndex = Number.isInteger(importDraft.editingQuestionIndex)
+    ? importDraft.editingQuestionIndex
+    : -1;
 
   const confidence = Math.round((Number(result.confidence) || 0) * 100);
   const rows = result.diagnostics.map((diagnostic, index) => {
@@ -57,7 +84,7 @@ function renderReview(result, excludedQuestionIds) {
         <td><strong>${STATUS_LABELS[diagnostic.status] || diagnostic.status}</strong></td>
         <td><ul>${messages}</ul></td>
         <td>
-          <label>
+          <div class="import-row-actions"><button class="btn btn-secondary" type="button" data-edit-import-question="${index}">${editingIndex === index ? "Fechar" : "Corrigir"}</button><label>
             <input
               type="checkbox"
               data-exclude-question="${escapeHtml(id)}"
@@ -65,7 +92,7 @@ function renderReview(result, excludedQuestionIds) {
               ${checked ? "checked" : ""}
             >
             Excluir
-          </label>
+          </label></div>
         </td>
       </tr>`;
   }).join("");
@@ -92,6 +119,7 @@ function renderReview(result, excludedQuestionIds) {
           <tbody>${rows}</tbody>
         </table>
       </div>
+      ${editingIndex >= 0 ? renderQuestionEditor(result, editingIndex) : ""}
       <button
         class="btn btn-primary"
         id="confirm-import"
@@ -100,6 +128,28 @@ function renderReview(result, excludedQuestionIds) {
       >Confirmar importação</button>
       ${hasIncludedBlocked ? "<p>Exclua ou corrija as questões bloqueadas para continuar.</p>" : ""}
     </section>`;
+}
+
+function updateImportedQuestion(store, index, updater) {
+  const state = store.getState();
+  if (!state.importResult?.quiz.questions[index]) return;
+  const questions = state.importResult.quiz.questions.map((question, questionIndex) => {
+    if (questionIndex !== index) return question;
+    const copy = {
+      ...question,
+      options: question.options.map(option => ({ ...option })),
+      feedback: { ...question.feedback }
+    };
+    updater(copy);
+    return copy;
+  });
+  const checked = validateQuiz({ ...state.importResult.quiz, questions });
+  store.setState({
+    importResult: {
+      ...state.importResult,
+      ...checked
+    }
+  });
 }
 
 async function readSourceFile(file, onProgress) {
@@ -287,7 +337,7 @@ export function renderImportView(container, store, library) {
       <div><span class="benefit-symbol" aria-hidden="true">▱</span><strong>Organização automática<small>Questões prontas para revisar</small></strong></div>
       <div><span class="benefit-symbol" aria-hidden="true">▥</span><strong>Estudo mais eficiente<small>Do material à performance</small></strong></div>
     </div>
-    ${renderReview(importResult, importDraft.excludedQuestionIds)}
+    ${renderReview(importResult, importDraft)}
     <dialog class="prompt-dialog" id="prompt-dialog" aria-labelledby="prompt-dialog-title">
       <div class="dialog-header"><div><p class="section-kicker">NotebookLM</p><h2 id="prompt-dialog-title">Prompt Supremo MedUp</h2></div><button class="icon-button" type="button" data-close-prompt aria-label="Fechar">×</button></div>
       <pre class="prompt-content">${escapeHtml(PROMPT_SUPREMO)}</pre>
@@ -331,6 +381,37 @@ export function renderImportView(container, store, library) {
       else excluded.delete(checkbox.dataset.excludeQuestion);
       updateDraft(store, { excludedQuestionIds: [...excluded] });
     });
+  }
+
+  for (const button of container.querySelectorAll("[data-edit-import-question]")) {
+    button.addEventListener("click", () => {
+      const index = Number(button.dataset.editImportQuestion);
+      updateDraft(store, {
+        editingQuestionIndex: store.getState().importDraft.editingQuestionIndex === index ? null : index
+      });
+    });
+  }
+
+  const editor = container.querySelector("[data-import-question-editor]");
+  if (editor) {
+    const questionIndex = Number(editor.dataset.importQuestionEditor);
+    for (const field of editor.querySelectorAll("[data-question-field]")) {
+      field.addEventListener("change", () => updateImportedQuestion(store, questionIndex, question => {
+        question[field.dataset.questionField] = field.value;
+      }));
+    }
+    for (const field of editor.querySelectorAll("[data-option-field]")) {
+      field.addEventListener("change", () => updateImportedQuestion(store, questionIndex, question => {
+        const option = question.options[Number(field.dataset.optionIndex)];
+        if (field.dataset.optionField === "text") option.text = field.value;
+        else question.feedback[option.label] = field.value;
+      }));
+    }
+    for (const radio of editor.querySelectorAll("[data-correct-option]")) {
+      radio.addEventListener("change", () => updateImportedQuestion(store, questionIndex, question => {
+        question.correctOption = radio.value;
+      }));
+    }
   }
 
   container.querySelector("#confirm-import")?.addEventListener("click", () => {
