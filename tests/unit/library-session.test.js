@@ -33,6 +33,10 @@ test("opens a local quiz with persisted study state and clears shared-session st
     selectedQuestion: 1,
     answers: { "q-1": "B" },
     finalized: true,
+    studyFilter: "all",
+    reviewMode: false,
+    reviewAnswers: {},
+    reviewFinalized: false,
     readOnly: false,
     notice: null
   });

@@ -88,8 +88,25 @@ test("academic shell is semantic, keyboard operable, and fluid", async t => {
   await optionA.focus();
   await page.keyboard.press("Enter");
   assert.equal(await optionA.getAttribute("aria-pressed"), "true");
+  await page.getByRole("button", { name: "Favoritar" }).click();
   await page.keyboard.press("ArrowRight");
   await page.getByRole("heading", { name: "Questão 2" }).waitFor();
+  await page.getByRole("button", { name: "Dúvida", exact: true }).click();
+  await page.getByRole("button", { name: /Favoritas 1/ }).click();
+  await page.getByRole("heading", { name: "Questão 1" }).waitFor();
+  await page.getByRole("button", { name: /Todas 2/ }).click();
+  await page.getByRole("button", { name: "Ir para questão 2" }).click();
+  await page.getByRole("button", { name: /^Alternativa B:/ }).click();
+  await page.getByRole("button", { name: "Finalizar simulado" }).click();
+  await page.getByRole("button", { name: "Revisar 2 erros" }).click();
+  await page.getByRole("heading", { name: "Questão 1" }).waitFor();
+  await page.getByRole("button", { name: /^Alternativa B:/ }).click();
+  await page.getByRole("button", { name: "Próxima" }).click();
+  await page.getByRole("button", { name: /^Alternativa A:/ }).click();
+  await page.getByRole("button", { name: "Concluir revisão" }).click();
+  await page.getByRole("heading", { name: "Revisão de erros concluída" }).waitFor();
+  await page.getByRole("button", { name: "Voltar ao resultado" }).click();
+  await page.getByRole("heading", { name: "Revisão do simulado" }).waitFor();
 
   for (const [width, height] of [[390, 844], [768, 1024], [1440, 1000]]) {
     await assertNoDocumentOverflow(page, width, height);

@@ -38,7 +38,11 @@ async function hydrateSharedLinkState() {
       readOnly: true,
       answers: quiz.progress?.answers || {},
       selectedQuestion: quiz.progress?.selectedQuestion || 0,
-      finalized: Boolean(quiz.progress?.finalized)
+      finalized: Boolean(quiz.progress?.finalized),
+      studyFilter: "all",
+      reviewMode: false,
+      reviewAnswers: {},
+      reviewFinalized: false
     };
   } catch {
     return unreadableSharedLinkState();

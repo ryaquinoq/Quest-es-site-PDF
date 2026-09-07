@@ -12,6 +12,10 @@ export function openLocalQuizState(quiz) {
     selectedQuestion: clampedQuestionIndex(quiz),
     answers: { ...(quiz.progress?.answers || {}) },
     finalized: Boolean(quiz.progress?.finalized),
+    studyFilter: "all",
+    reviewMode: false,
+    reviewAnswers: {},
+    reviewFinalized: false,
     readOnly: false,
     notice: null
   };

@@ -16,6 +16,10 @@ const DEFAULT_STATE = Object.freeze({
   importResult: null,
   selectedQuestion: 0,
   answers: {},
+  studyFilter: "all",
+  reviewMode: false,
+  reviewAnswers: {},
+  reviewFinalized: false,
   finalized: false,
   notice: null
 });
@@ -28,7 +32,8 @@ export function createStore(initialState = {}) {
       ...DEFAULT_IMPORT_DRAFT,
       ...(initialState.importDraft || {})
     },
-    answers: { ...(initialState.answers || {}) }
+    answers: { ...(initialState.answers || {}) },
+    reviewAnswers: { ...(initialState.reviewAnswers || {}) }
   };
   const listeners = new Set();
 
