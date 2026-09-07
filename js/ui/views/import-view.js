@@ -43,7 +43,7 @@ function questionId(result, index) {
 function renderQuestionEditor(result, index) {
   const question = result.quiz.questions[index];
   if (!question) return "";
-  return `<div class="import-question-editor" data-import-question-editor="${index}">
+  return `<div class="import-question-editor" data-import-question-editor="${index}" tabindex="-1" role="region" aria-label="Correção da questão ${escapeHtml(question.number)}" style="scroll-margin-top: 24px;">
     <div class="import-editor-grid">
       <label class="form-group"><span class="form-label">Tema</span><input class="form-input" data-question-field="topic" value="${escapeHtml(question.topic)}"></label>
       <label class="form-group"><span class="form-label">Dificuldade</span><input class="form-input" data-question-field="difficulty" value="${escapeHtml(question.difficulty)}"></label>
@@ -386,9 +386,27 @@ export function renderImportView(container, store, library) {
   for (const button of container.querySelectorAll("[data-edit-import-question]")) {
     button.addEventListener("click", () => {
       const index = Number(button.dataset.editImportQuestion);
+      const opening = store.getState().importDraft.editingQuestionIndex !== index;
       updateDraft(store, {
-        editingQuestionIndex: store.getState().importDraft.editingQuestionIndex === index ? null : index
+        editingQuestionIndex: opening ? index : null
       });
+      if (opening) {
+        // Wait for the replaced form to settle before moving the viewport.
+        requestAnimationFrame(() => {
+          if (store.getState().route !== "import" || store.getState().importDraft.editingQuestionIndex !== index) return;
+          const correction = container.querySelector("[data-import-question-editor]");
+          correction?.focus({ preventScroll: true });
+          requestAnimationFrame(() => {
+            if (!correction?.isConnected) return;
+            correction.scrollIntoView({
+              behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+              block: "start"
+            });
+          });
+        });
+      } else {
+        container.querySelector(`[data-edit-import-question="${index}"]`)?.focus({ preventScroll: true });
+      }
     });
   }
 

@@ -62,6 +62,11 @@ test("reviews a partial import and loads only the accepted question", async t =>
   assert.equal(await page.locator('[data-status="blocked"]').count(), 1);
 
   await page.getByRole("button", { name: "Corrigir" }).nth(1).click();
+  await page.waitForFunction(() => {
+    const editor = document.querySelector('[data-import-question-editor="1"]');
+    return editor && document.activeElement === editor &&
+      Math.abs(editor.getBoundingClientRect().top - 24) < 2;
+  });
   await page.locator("[data-import-question-editor]").getByRole("radio").nth(1).check();
   assert.equal(await page.locator('[data-status="blocked"]').count(), 0);
   assert.equal(await page.getByRole("button", { name: "Confirmar importação" }).isEnabled(), true);
