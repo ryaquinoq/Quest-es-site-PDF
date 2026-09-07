@@ -206,3 +206,39 @@ test("rejects invalid restores and previews preserve and replace conflicts", asy
   await page.locator('[data-library-quiz="Cardiologia substituída"]').waitFor();
   await originalRow.waitFor({ state: "detached" });
 });
+
+test("keeps a replaced active quiz restored after returning to study", async t => {
+  const page = await openApp(t);
+  await importFixture(page);
+  await page.getByRole("button", { name: "Biblioteca" }).click();
+
+  const { backup } = await downloadBackup(page);
+  backup.quizzes[0].title = "Versão restaurada";
+  backup.quizzes[0].questions[0].prompt = "Enunciado vindo do backup restaurado.";
+  backup.quizzes[0].progress = {
+    answers: {},
+    answered: 0,
+    correct: 0,
+    finalized: false,
+    selectedQuestion: 0
+  };
+  await page.locator("#library-restore-file").setInputFiles({
+    name: "replace-active.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(backup))
+  });
+  await page.getByRole("dialog", { name: "Restaurar backup" })
+    .getByRole("button", { name: "Substituir conflitos" }).click();
+  await page.locator('[data-library-quiz="Versão restaurada"]').waitFor();
+
+  await page.getByRole("button", { name: "Simulado" }).click();
+  await page.locator("[data-option]").first().click();
+  const persisted = await waitForStoredQuiz(
+    page,
+    quiz => Boolean(quiz.study?.lastStudiedAt),
+    "answered restored quiz"
+  );
+
+  assert.equal(persisted.title, "Versão restaurada");
+  assert.equal(persisted.questions[0].prompt, "Enunciado vindo do backup restaurado.");
+});

@@ -183,7 +183,26 @@ export function renderLibraryView(container, store, library) {
       restoreDialog.close();
       try {
         const result = await library.restore(restore.quizzes, button.dataset.restoreMode);
-        await refresh(store, library, {
+        const libraryItems = await library.list();
+        const activeId = store.getState().activeQuiz?.id;
+        const restoredActive = activeId && restore.quizzes.some(quiz => quiz.id === activeId)
+          ? libraryItems.find(quiz => quiz.id === activeId) || null
+          : undefined;
+        const activePatch = restoredActive === undefined
+          ? {}
+          : restoredActive
+            ? openLocalQuizState(restoredActive)
+            : {
+                activeQuiz: null,
+                answers: {},
+                finalized: false,
+                selectedQuestion: 0,
+                readOnly: false
+              };
+        store.setState({
+          ...activePatch,
+          route: "library",
+          libraryItems,
           notice: {
             type: "success",
             message: `Backup restaurado: ${result.added} adicionados, ${result.replaced} substituídos e ${result.skipped} preservados.`

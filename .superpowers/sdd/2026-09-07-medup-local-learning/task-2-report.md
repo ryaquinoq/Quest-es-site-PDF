@@ -27,6 +27,30 @@ Implementação concluída na branch `publish-medup`, sem push e sem subagentes.
 4. `npm run test:e2e`
    - 12 testes passaram, 0 falharam.
 
+## Fix round 1
+
+### RED
+
+1. `node --test --test-name-pattern "keeps a replaced active quiz" tests/e2e/backup-resume.test.mjs`
+   - 0 de 1 teste passou.
+   - Após restaurar com replace, voltar ao Simulado e responder, o registro persistido voltou a ter o título antigo `Simulado de Clínica Médica` em vez de `Versão restaurada`.
+   - Causa confirmada: o refresh pós-restore atualizava `libraryItems`, mas mantinha `activeQuiz`, `answers`, `finalized` e `selectedQuestion` anteriores.
+
+### GREEN
+
+1. `node --test --test-name-pattern "keeps a replaced active quiz" tests/e2e/backup-resume.test.mjs`
+   - 1 teste passou, 0 falharam.
+2. `npm test`
+   - 97 testes passaram, 0 falharam.
+3. `npm run test:e2e`
+   - 13 testes passaram, 0 falharam.
+
+### Correção
+
+- O fluxo pós-restore lê a biblioteca persistida uma vez e, quando o ID ativo participou da restauração, reidrata toda a sessão a partir desse registro.
+- Se o ID restaurado não estiver mais presente, a sessão ativa é invalidada.
+- A rota permanece `library` e o aviso de sucesso é preservado após a reidratação.
+
 ## Arquivos alterados
 
 - `js/ui/library-session.js`: helpers puros para abrir quiz local, selecionar a retomada mais recente e rotular a ação de retomada.
@@ -34,6 +58,7 @@ Implementação concluída na branch `publish-medup`, sem push e sem subagentes.
 - `js/ui/views/study-view.js`: atualização de `study.lastStudiedAt` junto da persistência de ações significativas.
 - `tests/unit/library-session.test.js`: cobertura dos helpers, clamp, hidratação, timestamp válido e estado finalizado.
 - `tests/e2e/backup-resume.test.mjs`: cobertura de retomada após reload, biblioteca sem alteração de timestamp, download e restauração inválida/conflitante.
+  No fix round 1, também cobre a substituição do quiz ativo seguida de resposta sem sobrescrever a versão restaurada.
 
 ## Auto-revisão
 
@@ -45,6 +70,7 @@ Implementação concluída na branch `publish-medup`, sem push e sem subagentes.
 - Backup inválido não chama restore nem atualiza a lista. Preview não restaura antes da escolha. A biblioteca só é recarregada após sucesso.
 - A exportação individual continua usando o mesmo conteúdo e nome de arquivo anteriores.
 - Parser, Prompt Supremo, compartilhamento e folhas de estilo não foram alterados. Os E2E existentes desses fluxos continuam verdes.
+- No fix round 1, a reidratação é limitada ao ID ativo presente no backup; sessões não relacionadas à restauração permanecem intactas.
 
 ## Preocupações
 
