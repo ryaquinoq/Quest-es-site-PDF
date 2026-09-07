@@ -40,7 +40,13 @@ function progressFor(quiz, state) {
 
 async function publishProgress(store, library, patch = {}) {
   const current = { ...store.getState(), ...patch };
-  const activeQuiz = { ...current.activeQuiz, progress: progressFor(current.activeQuiz, current), updatedAt: new Date().toISOString() };
+  const timestamp = new Date().toISOString();
+  const activeQuiz = {
+    ...current.activeQuiz,
+    progress: progressFor(current.activeQuiz, current),
+    study: { ...current.activeQuiz.study, lastStudiedAt: timestamp },
+    updatedAt: timestamp
+  };
   store.setState({ ...patch, activeQuiz });
   if (current.readOnly || !library) return;
   try {

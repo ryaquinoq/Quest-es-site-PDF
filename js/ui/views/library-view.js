@@ -1,3 +1,10 @@
+import { createBackup, parseBackup } from "../../storage/backup.js";
+import {
+  openLocalQuizState,
+  resumeActionLabel,
+  selectMostRecentlyStudiedQuiz
+} from "../library-session.js";
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -23,17 +30,26 @@ function progressLabel(quiz) {
   return `${Math.min(Math.max(answered, 0), total)}/${total} respondidas`;
 }
 
-function downloadQuiz(quiz) {
-  const blob = new Blob([JSON.stringify(quiz, null, 2)], { type: "application/json" });
+function downloadJson(value, filename) {
+  const blob = new Blob([JSON.stringify(value, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = `${quiz.title || "simulado"}.json`;
+  anchor.download = filename;
   anchor.hidden = true;
   document.body.append(anchor);
   anchor.click();
   anchor.remove();
   setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function downloadQuiz(quiz) {
+  downloadJson(quiz, `${quiz.title || "simulado"}.json`);
+}
+
+function downloadBackup(quizzes) {
+  const date = new Date().toISOString().slice(0, 10);
+  downloadJson(createBackup(quizzes), `medup-backup-${date}.json`);
 }
 
 async function refresh(store, library, patch = {}) {
@@ -55,6 +71,17 @@ export function renderLibraryView(container, store, library) {
     container.innerHTML = '<div class="glass-card" role="status">Carregando biblioteca...</div>';
     return;
   }
+
+  const resumeQuiz = selectMostRecentlyStudiedQuiz(libraryItems);
+  const resumeLabel = resumeQuiz ? resumeActionLabel(resumeQuiz) : "";
+  const resume = resumeQuiz ? `
+    <article class="glass-card" data-resume-quiz="${escapeHtml(resumeQuiz.id)}" style="margin-bottom:20px">
+      <p class="question-kicker">${resumeLabel}</p>
+      <div style="display:flex;gap:16px;justify-content:space-between;align-items:center;flex-wrap:wrap">
+        <div><h3>${escapeHtml(resumeQuiz.title)}</h3><p>${escapeHtml(progressLabel(resumeQuiz))}</p></div>
+        <button class="btn btn-primary" type="button" data-library-action="continue" data-quiz-id="${escapeHtml(resumeQuiz.id)}">${resumeLabel}</button>
+      </div>
+    </article>` : "";
 
   const items = libraryItems.map(quiz => `
     <article class="glass-card" data-library-quiz="${escapeHtml(quiz.title)}">
@@ -79,8 +106,14 @@ export function renderLibraryView(container, store, library) {
   container.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap">
       <div><h2>Seus simulados</h2><p>Simulados salvos neste navegador.</p></div>
-      <button class="btn btn-primary" type="button" id="library-import">Importar questões</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-secondary" type="button" id="library-download-backup">Baixar backup</button>
+        <button class="btn btn-secondary" type="button" id="library-restore-backup">Restaurar backup</button>
+        <button class="btn btn-primary" type="button" id="library-import">Importar questões</button>
+      </div>
+      <input id="library-restore-file" type="file" accept=".json,application/json" hidden>
     </div>
+    ${resume}
     ${items || '<div class="glass-card"><h3>Nenhum simulado salvo</h3><p>Importe questões para criar sua biblioteca local.</p></div>'}
     <dialog id="library-delete-dialog" style="padding:24px;border:0;border-radius:8px;max-width:440px;width:calc(100% - 32px)">
       <h3 id="library-delete-title"></h3>
@@ -89,11 +122,78 @@ export function renderLibraryView(container, store, library) {
         <button class="btn btn-secondary" type="button" data-dialog-cancel>Cancelar</button>
         <button class="btn btn-danger" type="button" data-dialog-confirm>Excluir</button>
       </div>
+    </dialog>
+    <dialog id="library-restore-dialog" aria-labelledby="library-restore-title" style="padding:24px;border:0;border-radius:8px;max-width:520px;width:calc(100% - 32px)">
+      <h3 id="library-restore-title">Restaurar backup</h3>
+      <p id="library-restore-preview" style="margin:12px 0 20px"></p>
+      <div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-secondary" type="button" data-restore-cancel>Cancelar</button>
+        <button class="btn btn-secondary" type="button" data-restore-mode="preserve">Preservar existentes</button>
+        <button class="btn btn-primary" type="button" data-restore-mode="replace">Substituir conflitos</button>
+      </div>
     </dialog>`;
 
   container.querySelector("#library-import").addEventListener("click", () => {
     store.setState({ route: "import", notice: null });
   });
+
+  container.querySelector("#library-download-backup").addEventListener("click", () => {
+    try {
+      downloadBackup(libraryItems);
+    } catch (error) {
+      reportError(store, error);
+    }
+  });
+
+  const restoreInput = container.querySelector("#library-restore-file");
+  const restoreDialog = container.querySelector("#library-restore-dialog");
+  let pendingRestore = null;
+  container.querySelector("#library-restore-backup").addEventListener("click", () => {
+    restoreInput.click();
+  });
+  restoreInput.addEventListener("change", async () => {
+    const [file] = restoreInput.files;
+    restoreInput.value = "";
+    if (!file) return;
+    try {
+      pendingRestore = parseBackup(
+        await file.text(),
+        libraryItems.map(quiz => quiz.id)
+      );
+      const incoming = pendingRestore.preview.incomingCount;
+      const conflicts = pendingRestore.preview.conflictingIds.length;
+      restoreDialog.querySelector("#library-restore-preview").textContent =
+        `${incoming} ${incoming === 1 ? "simulado" : "simulados"} no backup; ` +
+        `${conflicts} ${conflicts === 1 ? "conflito" : "conflitos"} com a biblioteca atual.`;
+      restoreDialog.showModal();
+    } catch (error) {
+      pendingRestore = null;
+      reportError(store, error);
+    }
+  });
+  restoreDialog.querySelector("[data-restore-cancel]").addEventListener("click", () => {
+    pendingRestore = null;
+    restoreDialog.close();
+  });
+  for (const button of restoreDialog.querySelectorAll("[data-restore-mode]")) {
+    button.addEventListener("click", async () => {
+      if (!pendingRestore) return;
+      const restore = pendingRestore;
+      pendingRestore = null;
+      restoreDialog.close();
+      try {
+        const result = await library.restore(restore.quizzes, button.dataset.restoreMode);
+        await refresh(store, library, {
+          notice: {
+            type: "success",
+            message: `Backup restaurado: ${result.added} adicionados, ${result.replaced} substituídos e ${result.skipped} preservados.`
+          }
+        });
+      } catch (error) {
+        reportError(store, error);
+      }
+    });
+  }
 
   for (const button of container.querySelectorAll("[data-library-action]")) {
     button.addEventListener("click", async () => {
@@ -101,15 +201,10 @@ export function renderLibraryView(container, store, library) {
       try {
         const quiz = await library.get(id);
         if (!quiz) return;
-        if (action === "open" || action === "edit") {
+        if (action === "open" || action === "continue" || action === "edit") {
           store.setState({
-            activeQuiz: quiz,
-            route: action === "edit" ? "editor" : "study",
-            selectedQuestion: quiz.progress?.selectedQuestion || 0,
-            answers: { ...(quiz.progress?.answers || {}) },
-            finalized: Boolean(quiz.progress?.finalized),
-            readOnly: false,
-            notice: null
+            ...openLocalQuizState(quiz),
+            route: action === "edit" ? "editor" : "study"
           });
           return;
         }
