@@ -22,6 +22,7 @@ function questionDiagnostic(question, rawQuestion, index) {
     if (STATUS_PRIORITY[nextStatus] > STATUS_PRIORITY[status]) status = nextStatus;
     messages.push(message);
   };
+  for (const issue of rawQuestion.importIssues || []) add("blocked", issue);
 
   if (!question.prompt) {
     add("blocked", "O enunciado da questão está vazio.");
@@ -44,7 +45,7 @@ function questionDiagnostic(question, rawQuestion, index) {
       add("blocked", "Uma alternativa parece estar incorporada ao texto de outra. Revise a separação das opções.");
     }
   }
-  if (Object.keys(question.feedback).some(label => /^[A-E]$/.test(label) && !optionLabels.includes(label))) {
+  if (Object.keys(rawQuestion.feedback || {}).some(label => /^[A-E]$/.test(label) && !optionLabels.includes(label))) {
     add("blocked", "O gabarito contém justificativa para uma alternativa que não foi localizada.");
   }
   if (new Set(optionLabels).size !== optionLabels.length) {
@@ -79,7 +80,7 @@ function questionDiagnostic(question, rawQuestion, index) {
   if (!hasText(rawQuestion.difficulty)) add("attention", "Dificuldade não informada.");
   if (!hasText(rawQuestion.takeHome)) add("attention", "Take-home message não informado.");
   if (question.options.some(({ label }) => !hasText(question.feedback[label]))) {
-    add("attention", "Feedback ausente para uma ou mais alternativas.");
+    add("attention", `Feedback ausente para uma ou mais alternativas: ${question.options.filter(({ label }) => !hasText(question.feedback[label])).map(({ label }) => label).join(", ")}.`);
   }
   if (!hasText(rawQuestion.keyPoint) && !hasText(rawQuestion.feedback?.keyPoint)) {
     add("attention", "Ponto-chave não informado.");

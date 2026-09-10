@@ -1,4 +1,4 @@
-const ANSWER_KEY_HEADER = /^\s*(?:#{1,6}\s*)?GABARITO(?:\s+(?:COMENTADO|FINAL|E FEEDBACK DETALHADO))?\s*:?\s*$/imu;
+import { ANSWER_KEY_HEADER } from "../answer-boundary.js";
 const QUESTION_HEADER = /^\s{0,3}(?:#{1,6}\s*)?(?:(?:Quest[aã]o\s+)(\d+)(?:\s*[.)])?|(\d+)\s*[.)])(?:\s*(?:[-—–:]\s*)?(.*))?$/gimu;
 const OPTION_MARKER = /^\s*(?:Alternativa\s+)?([A-E])\s*(?:[).:]|[-—–])\s+/gimu;
 const INLINE_ANSWER = /^\s*(?:Resposta(?:\s+correta)?|Gabarito|Alternativa correta)\s*[:\-–—]\s*(?:alternativa\s+|letra\s+)?\(?([A-E])\b.*$/imu;

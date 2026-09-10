@@ -1,6 +1,8 @@
-const QUESTION_HEADER = /^Quest[aã]o\s+(\d+)\s*(?:[-—–:]\s*)?([^|\n]*?)(?:\s*\|\s*([^\n]+))?\s*$/gimu;
-const ANSWER_KEY_HEADER = /^(?:[^\p{L}\p{N}\n]*)?(?:GABARITO(?:\s+E\s+FEEDBACK\s+DETALHADO)?|FEEDBACK\s+DETALHADO)\s*:?\s*$/imu;
-const OPTION_MARKER = /(?:^|[^\S\n]+)(?:[^\p{L}\p{N}\n]*)(?:Alternativa\s+)?([A-E])\s*(?:[).:]|[-—–])\s+/gimu;
+import { ANSWER_KEY_HEADER } from "../answer-boundary.js";
+
+const QUESTION_HEADER = /^Quest[aã]o[ \t]+(\d+)[ \t]*(?:[-—–:][ \t]*)?([^|\n]*?)(?:[ \t]*\|[ \t]*([^\n]+))?[ \t]*$/gimu;
+// Parenthesized letters inside prose (e.g. "via aérea (A)") are not options.
+const OPTION_MARKER = /(?:^[ \t]*(?:\([ \t]*)?|[^\S\n]+)(?:Alternativa[ \t]+)?([A-E])[ \t]*(?:[).:]|[-—–])[ \t]+/gimu;
 const TAKE_HOME_MARKER = /^(?:[^\p{L}\p{N}\n]*)?Take\s*home\s*message\s*:\s*/imu;
 
 function withoutDecorators(value) {
@@ -60,7 +62,7 @@ function parseQuestion(header, block) {
 }
 
 function answerBlocks(text) {
-  const header = /(?:^|\n|[─━])\s*Quest[aã]o\s+(\d+)\b/gimu;
+  const header = /(?:^|\n|[─━])[ \t]*(?:Quest[aã]o|Resposta)[ \t]+(\d+)\b/gimu;
   const matches = [];
   let match;
 
@@ -85,7 +87,7 @@ function directFeedback(text) {
 
   return Object.fromEntries(matches.map((item, index) => [
     item.label,
-    withoutDecorators(text.slice(item.valueStart, matches[index + 1]?.index ?? text.length))
+    withoutDecorators(text.slice(item.valueStart, matches[index + 1]?.index ?? text.length).split(/\n[ \t]*(?:Ponto-chave(?: para revis[aã]o)?|Take home message|Fonte(?: no material)?)[ \t]*:/iu)[0])
   ]));
 }
 
@@ -161,11 +163,32 @@ export function parse(text) {
     questionsText.slice(header.contentStart, headers[index + 1]?.index ?? questionsText.length).trim()
   ));
 
+  const seenAnswers = new Set();
   for (const answer of answerBlocks(answersText)) {
     const question = questions.find((item) => item.number === answer.number);
-    if (question) applyAnswer(question, answer.text);
+    if (question) {
+      if (seenAnswers.has(answer.number)) {
+        question.importIssues = [...(question.importIssues || []), "Mais de um gabarito para esta questão. Confira o texto original e selecione a resposta correta."];
+        question.correctOption = "";
+        continue;
+      }
+      seenAnswers.add(answer.number);
+      applyAnswer(question, answer.text);
+      const answers = [...answer.text.matchAll(/(?:^|\n)[ \t—–:-]*(?:Resposta\s+correta|Gabarito|Correta)[ \t]*:[ \t]*([A-E])\b/giu)].map(match => match[1].toUpperCase());
+      answers.push(...[...answer.text.matchAll(/Por\s+que\s+([A-E])\s+est[aá]\s+corret[ao]\s*:/giu)].map(match => match[1].toUpperCase()));
+      if (new Set(answers).size > 1) {
+        question.importIssues = ["Respostas corretas conflitantes no gabarito. Confira o original."];
+        question.correctOption = "";
+      }
+    }
   }
 
+  for (const question of questions) {
+    if (questions.filter(item => item.number === question.number).length > 1) {
+      question.importIssues = [...(question.importIssues || []), `Número ${question.number} repetido no original; confira a associação com o gabarito.`];
+      question.correctOption = "";
+    }
+  }
   const introduction = withoutDecorators(questionsText.slice(0, headers[0]?.index ?? questionsText.length));
   return {
     title: introduction.split("\n").map((line) => line.trim()).find(Boolean) || "Simulado sem título",

@@ -5,9 +5,9 @@ import { PROMPT_SUPREMO } from "../../prompt-supremo.js";
 
 const ACCEPTED_EXTENSIONS = new Set(["pdf", "txt", "md", "json"]);
 const STATUS_LABELS = {
-  ready: "Ready",
-  attention: "Attention",
-  blocked: "Blocked"
+  ready: "Pronta",
+  attention: "Revisar",
+  blocked: "Correção necessária"
 };
 const fileLoaders = new WeakMap();
 
@@ -69,7 +69,13 @@ function renderReview(result, importDraft) {
     ? importDraft.editingQuestionIndex
     : -1;
 
-  const confidence = Math.round((Number(result.confidence) || 0) * 100);
+  const formatLabel = {
+    legacy: "Gabarito separado reconhecido", generic: "Estrutura livre reconhecida",
+    "medup-docs": "Formato MedUp reconhecido", json: "Arquivo JSON reconhecido",
+    unknown: "Estrutura não reconhecida"
+  }[result.detectedFormat] || "Conteúdo analisado";
+  const pending = result.diagnostics.filter(item => item.status !== "ready");
+  const correctionRequest = `Revise somente as questões indicadas abaixo usando as fontes do notebook. Preserve os casos, o nível de raciocínio e os distratores plausíveis. Não invente conteúdo ausente das fontes. Devolva as questões corrigidas completas, com quatro alternativas A–D, seguidas de GABARITO E FEEDBACK DETALHADO: e blocos RESPOSTA N, Correta: letra, Justificativa A:, Justificativa B:, Justificativa C:, Justificativa D:, Ponto-chave:, Take home message: e Fonte:. Cada campo em sua própria linha. Confira correspondência entre números, letras e comentários.\n\n${pending.map(item => `Questão ${item.questionNumber ?? "não identificada"}: ${item.messages.join(" ")}`).join("\n")}`;
   const rows = result.diagnostics.map((diagnostic, index) => {
     const id = questionId(result, index);
     const number = diagnostic.questionNumber || index + 1;
@@ -108,8 +114,8 @@ function renderReview(result, importDraft) {
     <section class="glass-card" aria-labelledby="import-review-title">
       <h3 id="import-review-title">Revisão da importação</h3>
       <p>
-        Formato detectado: <strong>${escapeHtml(result.detectedFormat)}</strong>
-        · Confiança: <strong>${confidence}%</strong>
+        <strong>${escapeHtml(formatLabel)}</strong>
+        · ${result.quiz.questions.length} ${result.quiz.questions.length === 1 ? "questão recuperada" : "questões recuperadas"} · ${pending.length} para revisar
       </p>
       <div style="overflow-x: auto; margin-top: 16px;">
         <table style="width: 100%; border-collapse: collapse; text-align: left;">
@@ -120,6 +126,8 @@ function renderReview(result, importDraft) {
         </table>
       </div>
       ${editingIndex >= 0 ? renderQuestionEditor(result, editingIndex) : ""}
+      <details class="import-source-details"><summary>Comparar com o texto original</summary><pre class="import-original">${escapeHtml(result.sourceText)}</pre></details>
+      ${pending.length ? `<details class="import-source-details"><summary>Pedido de correção para o NotebookLM</summary><textarea class="form-textarea" rows="8" readonly aria-label="Pedido de correção para o NotebookLM">${escapeHtml(correctionRequest)}</textarea></details>` : ""}
       <button
         class="btn btn-primary"
         id="confirm-import"

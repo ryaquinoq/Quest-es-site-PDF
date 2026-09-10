@@ -1,3 +1,5 @@
+import { ANSWER_KEY_HEADER } from "./answer-boundary.js";
+
 const UNKNOWN_THRESHOLD = 0.45;
 
 function occurrences(text, pattern) {
@@ -35,7 +37,7 @@ export function detectFormat(text) {
     return result("json", jsonShape ? 0.97 : 0.92, reasons);
   }
 
-  const legacyHeading = /^GABARITO E FEEDBACK DETALHADO\s*:?\s*$/im.test(source);
+  const legacyHeading = ANSWER_KEY_HEADER.test(source);
   if (legacyHeading) {
     const reasons = ["cabeçalho de gabarito legado encontrado"];
     const splitAnswers = occurrences(

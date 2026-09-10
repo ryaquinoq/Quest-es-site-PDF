@@ -24,6 +24,18 @@ export function importQuiz(rawText, options = {}) {
   const adapter = adapters[detection.format];
   let best;
   if (!options.format && detection.format !== "json") {
+    // A separate, numbered answer key is stronger evidence than option counts.
+    const splitKey = detection.format === "legacy" && /^(?:Quest[aã]o|Resposta)[ \t]+\d+[^\n]*(?:Resposta correta|Correta)[ \t]*:|^Resposta[ \t]+\d+[ \t]*$/imu.test(normalized);
+    if (splitKey) {
+      for (const variant of new Set([normalized, expandCompactQuestions(normalized)])) {
+        const parsed = parseLegacy(variant);
+        const result = validateQuiz(parsed);
+        const blocked = result.diagnostics.filter(item => item.status === "blocked").length;
+        const score = result.quiz.questions.length * 100 - blocked * 200;
+        if (parsed.questions.length && (!best || score > best.score)) best = { result, score, format: "legacy" };
+      }
+      if (best) return { ...best.result, detectedFormat: "legacy", confidence: detection.confidence, sourceText };
+    }
     for (const variant of new Set([normalized, expandCompactQuestions(normalized)])) {
     for (const [format, candidate] of Object.entries(adapters)) {
       if (format === "json") continue;
@@ -31,7 +43,8 @@ export function importQuiz(rawText, options = {}) {
       const usable = result.diagnostics.filter(item => item.status !== "blocked").length;
       const usableRatio = result.quiz.questions.length ? usable / result.quiz.questions.length : 0;
       const completeness = result.quiz.questions.reduce((total, q) => total + q.options.length + q.options.filter(o => q.feedback[o.label]).length, 0);
-      const score = usable * 1000 + completeness + (format === detection.format ? 0.1 : 0);
+      const blocked = result.diagnostics.length - usable;
+      const score = usable * 1000 - blocked * 200 + completeness + (format === detection.format ? 10 : 0);
       if (!best || score > best.score) best = { result, score, format, confidence: usableRatio };
     }
     }

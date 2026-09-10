@@ -57,7 +57,12 @@ export function expandCompactQuestions(text) {
     .replace(/\b(Resposta correta|Justificativa [A-E]|Fonte(?: no material)?|Take home message)[ \t]*\n[ \t]*:/giu, "$1:")
     .replace(/\b(Quest[aã]o[ \t]+\d+)\b([ \t]+)(?=[^\s—–\-:|\d])/giu, "\n$1\n")
     .replace(/[ \t]+(?=(?:Resposta(?: correta)?|Justificativa [A-E]|Fonte(?: no material)?|Take home message|Ponto-chave(?: para revis[aã]o)?)\s*:)/giu, "\n")
-    .replace(/[ \t]+(?=(?:Alternativa\s+)?\(?[A-E]\)\s*\S)/gu, "\n")
+    .replace(/[ \t]+(?=(?:Alternativa\s+)?[A-E]\)\s*\S)/gu, "\n")
+    // Recover a parenthesized next option only after a completed option sentence.
+    .replace(/^([A-D])\)[^\n]*/gmu, (line, label) => {
+      const next = String.fromCharCode(label.charCodeAt(0) + 1);
+      return line.replace(new RegExp(`([.!?])[ \\t]+\\(${next}\\)[ \\t]+`, "u"), `$1\n${next}) `);
+    })
     .replace(/^\(([A-E])\)[ \t]*/gmu, "$1) ")
     .replace(/^([A-E])\)(?=\S)/gmu, "$1) ");
 }

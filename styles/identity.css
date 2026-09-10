@@ -1,4 +1,7 @@
 /* MedUp: open pages, forward movement, editorial clarity. */
+.import-source-details { margin-block: 18px; }
+.import-source-details summary { cursor: pointer; padding-block: 10px; color: #235d46; font-weight: 600; }
+.import-original { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 360px; overflow-y: auto; padding: 16px; background: #f4f7f3; font: 14px/1.7 var(--font-ui); }
 :root {
   --color-paper: #f7f8f7;
   --color-ink: #263732;
